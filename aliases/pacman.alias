@@ -1,0 +1,48 @@
+# ================================================================
+# Archlinux Package Manager (pacman)
+# ================================================================
+
+typeset -A pacman yaourt
+
+pacman=(
+    all     "pacman -Qe"
+    clean   "sudo pacman -Scc"
+    install "sudo pacman -S"
+    package "sudo pacman"
+    remove  "sudo pacman -R"
+    update  "sudo updatedb && sudo pacman -Syyu"
+
+    # # Alpine Linux
+    # ak "sudo apk"
+    # aka "sudo apk add --update"
+    # aks "sudo apk search"
+    # apt "sudo apk add --upgrade apk-tools"
+    # akupgrade "sudo apk upgrade --update-cache --available"
+    # lc "sudo lbu ci -v"
+)
+alias y="print '!!!using af!!!' && af"
+arch() {
+    cmd=$1
+    pkg=$2
+    alias arch-$cmd=$pkg #  $ arch-install
+    alias a-$cmd=$pkg     #  $ a-install
+    alias a$cmd[0,1]=$pkg  #  $ ai
+}
+
+for k in "${(@k)pacman}"; do
+    arch "$k" "$pacman[$k]"
+done
+
+yaourt=(
+    y  "yaourt --force --noconfirm"
+    yt  "yaourt -S --force"
+    yf  "yaourt -S --force --noconfirm"
+)
+
+arch() {
+    alias $1=$2
+}
+
+for k in "${(@k)yaourt}"; do
+    alias $k="$yaourt[$k]"
+done

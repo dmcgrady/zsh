@@ -1,0 +1,10 @@
+
+function note() {
+    cd $HOME/notes
+    $EDITOR $1.md
+}
+
+function todo() {
+    cd $HOME/notes
+    $EDITOR $1.todo
+}

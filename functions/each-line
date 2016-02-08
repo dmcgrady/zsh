@@ -1,0 +1,16 @@
+# function import() {
+#     source $(locate-plugin $1)
+# }
+#
+# function install-remote() {
+#     zgen load $1
+# }
+#
+# function locate-plugin() {
+#     print $files | grep "$1" | sort -d | head -1
+# }
+
+function each-line() {
+    while IFS= read -r line; do $2 $line; done <<< $1
+}
+

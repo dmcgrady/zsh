@@ -1,0 +1,42 @@
+#!/usr/bin/env zsh
+
+#=========================================================
+#
+#     📡 import
+#     -------------------------------------------------
+#     A helper function for importing zsh lib
+#
+#        Git repo: https://github.com/t1mxg0d/zsh
+#        Options:
+#             <1:lib> = An array of .zsh filepaths
+#        Usage:
+#             import <1:lib>
+#        Example:
+#             $ lib=(
+#                   $(locate-lib $ZSH_DIR/lib/)
+#               )
+#             $ import ~/zsh/lib
+#
+#=========================================================
+
+import() {
+    local _lib=($@)
+
+    function _import() {
+        local _module=$1
+        local _filename="$(basename $_module).zsh"
+        local _location=$(find $ZSH_DIR -maxdepth 3 \
+                                        -type f \
+                                        -name $_filename \
+                                        -print)
+        source $_location
+    }
+
+    if [ -z "$_lib" ]; then
+        zlog red "Error: Function requires an argument: \
+                         import <lib:array>"
+        exit
+    else
+        each $_lib _import
+    fi
+}

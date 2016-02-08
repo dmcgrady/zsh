@@ -1,0 +1,25 @@
+typeset -A search
+
+alias SS=$SEARCH || pt
+
+search=(
+    # Locate
+    ss-aliases "alias SS"
+    ss-ps      "ps -ef SS"
+
+    # Locate
+    ll         "locate"
+    llu        "sudo updatedb"
+)
+
+alias P -G "| pt"
+
+for k in "${(@k)search}"; do
+    alias "$k"="$search[$k]"
+done
+
+
+ss-history() {
+    local _results="$(history | SS $1)"
+    print $_results
+}

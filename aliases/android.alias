@@ -1,0 +1,24 @@
+# ============================================================
+# Android SDK
+# ============================================================
+
+typeset -A android
+
+android=(
+    push "sudo adb push"
+    devices "sudo adb devices"
+    flash "sudo fasboot flash"
+    shell "sudo adb shell"
+)
+
+function generate() {
+    cmd=$1
+    pkg=$2
+    alias adb-$cmd=$pkg #  $ generate-install
+    alias adb-$cmd=$pkg     #  $ a-install
+    alias adb$cmd[0,1]=$pkg  #  $ ai
+}
+
+for k in "${(@k)android}"; do
+    generate "$k" "$android[$k]"
+done

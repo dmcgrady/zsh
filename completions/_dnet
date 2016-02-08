@@ -1,0 +1,56 @@
+#compdef dnet
+
+local context state line curcontext="$curcontext" dnet_args ret=1
+dnet_args="${(uonzf)$(dnet args)}"
+
+# _values "netctl profiles" "${(uonzf)$(dnet cards)}" "network cards" "${(uonzf)$(dnet list)}"
+# _values -S , $val_args
+# _values 'dnet[action]::insert action be triggered:()' \
+#         '*two[another number]::second count:(1 2 3)'
+# _arguments -A "-*" \
+#   '-i+[use identity file]:SSH identity file:_files' \
+#   '-n+[do a dry-run]' \
+#   '-h+[print usage summary]' \
+#   '-p+[specify custom port]' \
+#   '-o+[additional ssh option]' \
+#   '1: :_user_at_host'
+
+(( $+functions[_network_cards] )) ||
+_network_cards() {
+  _values "network cards" "${(uonzf)$(dnet cards)}"
+}
+
+(( $+functions[_netctl_profiles] )) ||
+_netctl_profiles() {
+  _values "netctl profiles" "${(uonzf)$(dnet list)}"
+}
+
+(( $+functions[_connect_args] )) ||
+_connect_args() {
+  _alternative \
+    '-card[network card]: :_network_cards' \
+    '-profile[netctl profile]: :_netctl_profiles'
+}
+
+(( $+functions[_dnet_cmds] )) ||
+_dnet_cmds() {
+  local commands; commands=(
+    'connect:connect with netctl profile'
+    'status:status of connection'
+    'cards:list all network cards'
+    'card:find card for profile:'
+    'list:list all netctl profiles:'
+  )
+  _describe -t commands 'dnet connect commands' commands "$@"
+}
+
+local connect_args=(
+    '-card[network card]: :_network_cards'
+    '-profile[netctl profile]: :_netctl_profiles'
+)
+
+_arguments -C \
+    '-card[network card]: :_network_cards' \
+    '-profile[netctl profile]: :_netctl_profiles' \
+    '1:dnet command:_dnet_cmds'
+

@@ -1,0 +1,4 @@
+# ps utilities
+psx () {
+    ps -fp $(pgrep -d, -x $1)
+}

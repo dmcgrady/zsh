@@ -1,0 +1,49 @@
+# ================================================================
+# Git
+# ================================================================
+
+typeset -A gitcmds
+
+gitcmds=(
+    g     "git"
+    gcl   "clone"
+    gc    "commit"
+    gb    "checkout -b"
+    gs    "status"
+    gp    "pull"
+    gr    "remote -v"
+    gpl   "pull --rebase origin"
+    gpo   "push origin"
+    gundo "reset --soft HEAD~1"
+)
+
+for k in "${(@k)gitcmds}"; do
+    alias $k="git $gitcmds[$k]"
+done
+
+
+# ================================================================
+# Git Annex
+# ================================================================
+
+typeset -A annexcmds
+annexcmds=(
+    ax   "cd $HOME/annex && git annex"
+    axx  "cd $HOME/annex"
+    axa  "add"
+    axd  "drop"
+    axg  "get"
+    axi  "info"
+    axm  "move"
+    axs  "status"
+    axl  "lock"
+    axu  "unlock"
+    axsy "sync"
+    axdi "direct"
+    axid "indirect"
+    axupdate "get config/ zsh/ notes/ vault/ work/ pdf/ logs/ bin/"
+)
+
+for k in "${(@k)annexcmds}"; do
+    alias $k="ax $annexcmds[$k]"
+done

@@ -1,0 +1,25 @@
+#compdef lk
+
+local context state line curcontext="$curcontext" lk_args ret=1
+
+# _values "netctl profiles" "${(uonzf)$(lk cards)}" "network cards" "${(uonzf)$(lk list)}"
+# _values -S , $val_args
+# _values 'lk[action]::insert action be triggered:()' \
+#         '*two[another number]::second count:(1 2 3)'
+# _arguments -A "-*" \
+#   '-i+[use identity file]:SSH identity file:_files' \
+#   '-n+[do a dry-run]' \
+#   '-h+[print usage summary]' \
+#   '-p+[specify custom port]' \
+#   '-o+[additional ssh option]' \
+#   '1: :_user_at_host'
+
+(( $+functions[_lk_cmds] )) ||
+_lk_cmds() {
+    _values "network cards" "${(uonzf)$(locate /usr/local/bin)}"
+}
+
+_arguments -C \
+    '1:fuzzy file search:_lk_cmds';
+    '-name[link filename]' \
+

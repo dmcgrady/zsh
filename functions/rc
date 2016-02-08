@@ -1,0 +1,13 @@
+# ================================================================
+# rc utility
+# Generate aliases to edit config files
+# ================================================================
+rc() {
+    dir=$(dirname $1)
+    cd $dir
+    if [ $dir[0,5] != "/home" ]; then
+        sudo $EDITOR $1
+    else
+        $EDITOR $1
+    fi
+}

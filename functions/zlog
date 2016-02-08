@@ -1,0 +1,23 @@
+#!/usr/bin/zsh
+#==========================================================================
+#
+#     ✔ zlog
+#     ----------------------------------------------------
+#     A simple logging utility
+#
+#        Git repo: https://github.com/t1mxg0d/zsh
+#        Options:
+#             <1:color>   = Color of log message (green, grey, red, etc)
+#             <2:message> = The log message to display wrapped in quotes
+#        Usage:
+#           zlog <color> "<message>"
+#        Example:
+#           $> zlog green "ZSH has finished loading!"
+#
+#==========================================================================
+
+zlog() {
+    # if [ $ZLOG_ENABLED  ]; then
+    #     print $2
+    # fi
+}

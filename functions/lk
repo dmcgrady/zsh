@@ -1,0 +1,27 @@
+# ===============================================================
+# lk <FUZZY FILEPATH QUERY>
+#   - Create symbolic link to target file
+#   - Uses the target's basename as the filename (default)
+#   - [optional] Define a specific filename (--name <name>)
+# ===============================================================
+
+lk() {
+  IFS='
+'
+    zparseopts -E -D name:=name
+    local _selected _link _target
+
+    if _selected=$(locate / | fzf -q "$1"); then
+        _target=$_selected
+    fi
+
+    if [ -n "$name" ]; then
+        _link=$(basename $_target)
+    else
+        _link=$name[2]
+    fi
+
+    cmd="ln -vs $_target $_link"
+    print $cmd
+    # $cmd
+}
