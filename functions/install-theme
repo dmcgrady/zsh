@@ -1,0 +1,190 @@
+#!/usr/bin/zsh
+
+##################################################################
+#
+#  ---
+#  ---  Install base16 theme
+#  ---  -------------------------------------------------------
+#  ---  A simple utility for automatically applying Base16
+#  ---  themes across linux.
+#  ---  -------------------------------------------------------
+#  ---
+#
+##################################################################
+#
+#  Usage:
+#
+#      $ install-theme <name:required> <scheme:optional>
+#
+#  Example A:
+#
+#      $ install-theme t1mxg0d
+#
+#      > Generating base16 configs using $DIR/scheme/t1mxg0d.yml
+#      > Installing `base16-t1mxg0d` theme....
+#
+#  Example B w/ schema option:
+#
+#      $ install-theme harmonic16 harmonic.yml
+#
+#      > Generating base16 using $DIR/scheme/harmonic.yml
+#      > Installing `base16-harmonic16` ....
+#
+#
+##################################################################
+
+
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+#                      --- Options ---
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+# Defaults
+local THEME="harmonic16"
+local CONFIG=$DIR/schemes/harmonic.yml
+local DIR=$HOME/zsh/vendor/base16-builder
+local BACKUP=$HOME/tmp/base16-backup-$DATE
+
+# Filepaths
+local TERMITE=$HOME/.config/termite/config
+local VIM=$HOME/.config/nvim/plugged/base16-vim/colors/base16-theme.vim
+local ZSH=$HOME/zsh/lib/theme.zsh
+local XRESOURCES=$HOME/.Xresources
+
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+#
+#  Helpers
+#
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+header() {
+    echo "\n┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"
+    echo "$@"
+    echo "┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅┅"
+}
+
+logger() {
+    echo "\n┄┄[Base16]┄┄┄> $@"
+}
+
+info() {
+    logger "  $@"
+}
+
+success() {
+    logger "✔ $@"
+}
+
+error() {
+    logger "❌ ERROR: $@"
+    debug-options
+    br
+    # exit
+}
+
+br() {
+    echo "\n"
+}
+
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+#
+#  Functions
+#
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+backup-configs() {
+
+    info "Backing up to $BACKUP"
+
+    cd $DIR
+    mkdir -p $BACKUP
+    cp -rf $TERMITE $VIM $ZSH $XRESOURCES $BACKUP
+}
+
+generate-config() {
+    local _label=$1
+    local _source=$DIR/output/$2
+    local _dest=$3
+
+    success "$_label: Generating theme...\n"
+
+    $DIR/base16 -s $CONFIG -t $_label
+    [[ ! -e $_source ]] && \
+        error "Config file for $_label not found\n\nFile \`$(basename $_source)\` not found in directory. \n\nDid you mean to choose one of these?\n$(ls $(dirname $_source))"
+    cp -rf $_source $_dest
+}
+
+install-themes() {
+    info "Installing theme: \`base16-$THEME\`..."
+    backup-configs # Backup existing configs
+
+    # Termite
+    generate-config "termite" "termite/base16-$THEME.dark.config" $TERMITE
+    # VIM
+    generate-config "vim" vim/base16-$THEME.vim $VIM
+    # ZSH
+    generate-config "shell" shell/base16-$THEME.dark.sh $ZSH
+    # Xresources
+    generate-config "xresources" xresources/base16-$THEME.dark.xresources $XRESOURCES
+    cat $HOME/.Xresources-include >> $XRESOURCES
+    xrdb $HOME/.Xresources
+}
+
+debug-options() {
+    echo " \n \
+
+     Filepaths
+     ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ \n \
+    THEME:  $THEME \n \
+    DIR:    $DIR \n \
+    SCHEMA: $CONFIG \n \
+    BACKUP: $BACKUP \n \
+    ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ \n \
+    \n \
+    Applications
+     ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ \n \
+    TERMITE:    $TERMITE \n \
+    VIM:        $VIM \n \
+    ZSH:        $ZSH \n \
+    XRESOURCES: $XRESOURCES \n \
+    ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄"
+}
+
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+#
+# Program
+#
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+main() {
+    header "\n                        BASE16 INSTALLER\n"
+    install-themes
+    header "                          INSTALL COMPLETE!"
+    echo ""
+}
+
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+#
+# Parse user input
+#
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+[[ -n "$2" ]] && \
+    local CONFIG=$DIR/schemes/$2
+
+if [[ -n "$1" ]]; then
+    local THEME="$1"
+    [[ ! -n "$2" ]] && local CONFIG=$DIR/schemes/$1.yml
+fi
+
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+#
+# Execute
+#
+#┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+
+[[ ! -e $CONFIG ]] && \
+    error "Config file does not exist \n --> $CONFIG"
+[[ ! -e $DIR ]] && \
+    error "Dir does not exist \n --> $DIR"
+
+main

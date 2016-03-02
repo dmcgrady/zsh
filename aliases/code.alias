@@ -15,6 +15,9 @@ code_dir_aliases=(
     bin  "binkit"
     blg  "blog"
     ins  "insta"
+    cl   "carelogger"
+    cl2   "carelogger2"
+    dm   "dmix.ca"
 
     # Contra
     con  "sideproject"
@@ -58,8 +61,10 @@ code_cmd_aliases=(
     cgr "cargo run"
 
     # Ruby
-     be "bundle exec"
-    brs "bundle exec rails server"
+    be "bundle exec"
+    bi "bundle install"
+    bu "bundle update"
+    rs "rails server"
 
     # Jekyll
     js "bundle exec jekyll serve -t"

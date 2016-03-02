@@ -23,6 +23,7 @@ fpath=(
 path=(
     $HOME/.bin
     $HOME/.local/bin
+    $ZSH_DIR/functions
     $HOME/.cabal/bin
     $HOME/.xmonad/bin
     $HOME/.rvm/bin
@@ -78,17 +79,28 @@ ZSH_CALLBACKS+=(ZSH_FINISHED_LOADING)
 #                        Modules
 #---------------------------------------------------------
 
-typeset -a ZSH_MODULES
+typeset -a ZSH_MODULES SYSTEM_CONFIGS
+
+SYSTEM_CONFIGS=(
+    /etc/X11/xinit/xinitrc.d/40-libcanberra-gtk-module.sh
+    /etc/X11/xinit/xinitrc.d/50-systemd-user.sh
+    /etc/X11/xinit/xinitrc.d/60-xdg-user-dirs.sh
+    /etc/X11/xinit/xinitrc.d/infinality-settings.sh
+    /etc/X11/xinit/xinitrc.d/xft-settings.sh
+)
+
 ZSH_MODULES+=(
     options
     logger
     zgen
     plugins
-    aliases
     keybindings
     login
-    benchmark
+    aliases
+    theme
 )
+
+each $SYSTEM_CONFIGS source
 import $ZSH_MODULES
 
 #---------------------------------------------------------
@@ -106,3 +118,5 @@ import $ZSH_MODULES
 each $ZSH_CALLBACKS execute
 
 #=========================================================
+
+export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting

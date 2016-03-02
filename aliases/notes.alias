@@ -1,7 +1,16 @@
 
 function note() {
-    cd $HOME/notes
-    $EDITOR $1.md
+    local _dir="$HOME/notes"
+    local _file="$_dir/$1.md"
+    cd $_notes_dir
+    if [ -e $_file ]; then
+        echo "Opening existing note in $_dir"
+        $EDITOR $_file
+    else
+        echo "Creating $1.md in $_dir"
+        echo "# $1\n\n" > $_file
+        $EDITOR $_file
+    fi
 }
 
 function todo() {

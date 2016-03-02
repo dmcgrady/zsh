@@ -24,13 +24,8 @@ export ZGEN_SYSTEM_UPDATE_DAYS=3
 # DESKTOP ------------------------------------------------
 
 # EDITOR
-if [[ -e /usr/bin/nvim ]]; then
-    export EDITOR="nvim"
-    export EDITOR_CONF="$HOMc/.config/nvim"
-elif [[ -e /usr/bin/vim ]]; then
-    export EDITOR="vim"
-    export EDITOR_CONF="$HOME/.vim"
-fi
+export EDITOR="nvim"
+export EDITOR_CONF="$HOME/.config/nvim"
 export VISUAL=$EDITOR
 
 # TERMINAL
@@ -108,3 +103,18 @@ unsetopt nomatch
 # Enable global OSX colors
 export CLICOLOR=1
 #export LSCOLORS=GxFxCxDxBxegedabagaced
+# This file is written by xdg-user-dirs-update
+# If you want to change or add directories, just edit the line you're
+# interested in. All local changes will be retained on the next run
+# Format is XDG_xxx_DIR="$HOME/yyy", where yyy is a shell-escaped
+# homedir-relative path, or XDG_xxx_DIR="/yyy", where /yyy is an
+# absolute path. No other format is supported.
+#
+XDG_DESKTOP_DIR="$HOME/"
+XDG_DOWNLOAD_DIR="$HOME/downloads"
+XDG_TEMPLATES_DIR="$HOME/downloads"
+XDG_PUBLICSHARE_DIR="$HOME/downloads"
+XDG_DOCUMENTS_DIR="$HOME/notes"
+XDG_MUSIC_DIR="$HOME/music"
+XDG_PICTURES_DIR="$HOME/pictures"
+XDG_VIDEOS_DIR="$HOME/video"

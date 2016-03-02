@@ -1,16 +1,34 @@
-# function import() {
-#     source $(locate-plugin $1)
-# }
-#
-# function install-remote() {
-#     zgen load $1
-# }
-#
-# function locate-plugin() {
-#     print $files | grep "$1" | sort -d | head -1
-# }
+each-line() {
+    local fail=""
+    local _fn=$1
+    [ ! -n $_fn ] && \
+        fail="missing argument <function>"
+    local _items="$2"
+    [ ! -n $_items ] && \
+        fail="Error: missing argument <EOL>"
+    local _help=$(cat <<EOLHELP
+❌ $fail
 
-function each-line() {
-    while IFS= read -r line; do $2 $line; done <<< $1
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+
+Usage:
+
+Pass a multi-line string using the EOL syntax and
+each-line applies a function to... each line.
+
+    $ each-line <EOL> <function>
+
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+EOLHELP
+)
+
+    [[ ! $fail = "" ]] && echo "$_help \n\n"
+
+    while IFS= read -r line
+    do
+        line="${line#"${line%%[![:space:]]*}"}"   # remove leading whitespace characters
+        _line="${line%"${line##*[![:space:]]}"}"  # remove trailing whitespace characters
+        [ -n $_line ] && $_fn $line
+        [ ! -n $_line ] && echo "Skipping >$line<"
+    done <<< $_items
 }
-

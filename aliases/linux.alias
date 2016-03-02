@@ -15,6 +15,7 @@ unix=(
     p  "print"
     q  "exit"
     h  "history -n 1"
+    xu "xrdb $HOME/.Xresources && xmodmap $HOME/.Xmodmap"
     rp  "fc -ln -1" # repeat
     rps  "sudo \$(fc -ln -1)" # repeat as sudo
     paths "print -l \${(s.:.)PATH}" # print paths
@@ -138,3 +139,9 @@ done
 
 alias ips="ifconfig -a | grep -o \"inet6\? \(\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)\|[a-fA-F0-9:]\+\)\" | sed -e \"s/inet6* //\""
 alias cards="ifconfig -a | awk '/((wlp|en)\\w+)/ {print \$1}' | sed -e 's/://'"
+
+# ================================================================
+# SSH Hack
+# ================================================================
+
+function ssh-tmux() {/usr/bin/ssh -t $@ "tmux new-session -s arch || tmux attach-session -t arch";}

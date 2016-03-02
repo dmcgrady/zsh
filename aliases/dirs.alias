@@ -45,10 +45,10 @@ function take() {
 typeset -A shortcuts=(
 
     # LS -----------------------------
-    l "ls --color -h --group-directories-first -1 -s"
+    l "ls -lGFh --color=auto"
+    ll "ls --color -h --group-directories-first -1 -s"
     lS "ls --color -h --group-directories-first -1 -s -w 80"
     lSs "ls -1FSshr"
-    ll "ls -lGFh --color=auto"
     lks "ls -ah1d --color --group-directories-first | grep -e \"->\"" # symlinks
 
     # SIZES --------------------------
