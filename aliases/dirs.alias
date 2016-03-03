@@ -52,7 +52,7 @@ typeset -A shortcuts=(
     lks "ls -ah1d --color --group-directories-first | grep -e \"->\"" # symlinks
 
     # SIZES --------------------------
-    sizes "du --max-depth 1 -h" # directory file sizes
+    sizes "du -sh * | sort -h" # directory file sizes
 
     # MODIFY -------------------------
     md "mkdir -p"
