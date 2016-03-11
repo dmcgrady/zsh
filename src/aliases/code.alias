@@ -6,9 +6,9 @@ export BABEL_CACHE_PATH=$HOME/tmp/.babel
 typeset -A code_cmd_aliases code_dir_aliases
 
 export CODE_DIR="$HOME/code"
+alias C="cd $CODE_DIR && echo \"-----> Get to work ------>\""
 export ERLANG_DIR="$HOME/erlang"
-alias w="cd $CODE_DIR"
-alias er="cd $ERLANG_DIR"
+alias E="cd $CODE_DIR && echo \"-----> Get to work ------>\""
 
 code_dir_aliases=(
     # Side-projects

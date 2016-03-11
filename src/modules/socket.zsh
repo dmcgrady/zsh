@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/bin/env zsh
 zmodload zsh/net/socket
 
 zsocket -v /var/run/log

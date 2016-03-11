@@ -1,5 +1,6 @@
 # ZSH Dir
-alias xa="cd $ZSH_DIR/lib/aliases"
+alias zb="cd $ZSH_BIN_DIR && nvim"
+alias za="cd $ZSH_DIR/lib/aliases"
 alias vxa="cd $ZSH_DIR/lib/aliases && nvim"
 alias xm="cd $ZSH_DIR/lib"
 alias vxm="cd $ZSH_DIR/lib && nvim"

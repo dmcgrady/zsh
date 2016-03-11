@@ -1,0 +1,88 @@
+#!/usr/bin/env zsh
+
+#=========================================================
+#
+#     📡 ss
+#     -------------------------------------------------
+#     Search utility for Linux desktop systems. Query
+#     history, files, and more using handy shortcuts.
+#
+#        Git repo: https://github.com/t1mxg0d/ss
+#        Options:
+#             <1:alias|a> = Search aliases
+#             <1:bin|b> = Find location of bin file
+#             <1:code|c> = Search source code
+#             <1:files|f> = Locate files
+#             <1:fpath|fp> = Grep $fpath
+#             <1:history|h> = Grep zsh/bash history
+#             <1:path|p> = Grep $path
+#             <1:zsh|z> = Grep ZSH config directory
+#             <1:vim|v> = Grep Vim config directory
+#
+#        Installation:
+#             echo "$ALIASES=\"$(alias)\"" > $HOME/.zshrc
+#        Options:
+#             $EDITOR = Your text editor (Default: vim)
+#             $CODE_DIR = Directory containing source code (Default: ~/code||~/dev||~/work )
+#             $SEARCH = Search program (Default: pt||ag||grep)
+#             $SHELL = Default shell (Default: zsh)
+#             $VIM_DIR = ZSH config dir (Default: ~/.config/nvim || ~/.vim)
+#             $ZSH_DIR = ZSH config dir
+#        Usage:
+#             import <1:modules>
+#        Example:
+#             $ modules=(
+#                   $(locate-modules $ZSH_DIR/modules/)
+#               )
+#             $ import ~/zsh/lib
+#
+#=========================================================
+
+
+# Options ------------------------------------------------
+
+typeset -A Module Commands
+Args=($@)
+Action=$1
+Commands=(
+    'a' ss-alias
+    'alias' ss-alias
+    'f' ss-files
+    'files' ss-files
+    'h' ss-history
+    'history' ss-history
+)
+
+# program ------------------------------------------------
+
+ss-alias() {
+    local _query="$@"
+    print "[ss] --- Searching aliases for $_query"
+    $SEARCH $_query $ZSH_ALIAS
+}
+
+ss-files() {
+    local _query="$@"
+    print "[ss] --- Searching files for $_query"
+    locate $_query
+    print "[ss] -- DONE"
+}
+
+ss-history() {
+    local _query="$@"
+    print "[ss] --- Searching history for $_query"
+    fc -R
+    fc -l 1 | $SEARCH $_query
+}
+
+
+# Run program  -------------------------------------------
+ss() {
+    echo $Args
+    echo $Action
+    echo $Commands[$Action]
+    echo ${Args#$Action}
+}
+
+eval alias
+# $Commands[$Action] ${Args#$Action}

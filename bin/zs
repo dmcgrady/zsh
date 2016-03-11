@@ -1,0 +1,91 @@
+#!/usr/bin/env zsh
+
+# ----------------------------------------------------------------------------
+# zc
+# ZSH CONFIG UTILITY
+# ----------------------------------------------------------------------------
+#
+#    Commands:
+#       install = Install t1mxg0d's ZSH config files into system
+#       update  = Update ZSH vendor and zgen libraries
+#       edit    = Open ZSH config file in editor
+#
+#    Usage:
+#       $ zc (install update clean edit)
+#
+# ----------------------------------------------------------------------------
+
+source src/config.zsh
+
+zs-install() {
+    # Install vendor libraries
+    echo "> Cloning vendor libraries..."
+    git clone https://github.com/kowalskey/base16-builder $ZSH_VENDOR_DIR/base16-builder
+    git clone https://github.com/kowalskey/base16-shell $ZSH_VENDOR_DIR/base16-shell
+    git clone https://github.com/tarjoilija/zgen $ZSH_VENDOR_DIR/zgen
+
+    # Install fzf
+    echo "> Installing fzf..."
+    git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf
+    $HOME/.fzf/install
+}
+
+zs-update() {
+    echo "> Updating ZSH config git repo..."
+    cd $ZSH_BASE_DIR
+    git pull
+
+    echo "> Updating zsh vendor libs..."
+    for i in $(ls $ZSH_VENDOR_DIR/); do
+        cd $ZSH_VENDOR_DIR/$i
+        git pull
+    done
+
+    echo "> Updating zgen..."
+    source $ZSH_VENDOR_DIR/zgen/zgen.zsh
+    zgen update
+    zgen reset
+
+    rm $ZSH_BASE_DIR/**/*.zwc
+    compile-zsh
+}
+
+zs-clean() {
+    echo "> Cleaning ZSH..."
+    # Clean ZSH
+    mkdir -p $ZSH_BASE_DIR/.backup
+    mv $HOME/.zshrc \
+       $HOME/.zlogin \
+       $HOME/.exports \
+       $HOME/.zprofile \
+       $HOME/.zshenva \
+       $HOME/.zcompdump* \
+       $HOME/.z.* \
+       $ZSH_BASE_DIR/.backup
+}
+
+zs-link() {
+    # Link dotfiles
+    echo "> Generating symlinks..."
+    ln -sf $ZSH_DIR/init.zsh $HOME/.zshrc
+    ln -sf $ZSH_DIR/login.zsh $HOME/.zlogin
+    ln -sf $ZSH_DIR/config.zsh $HOME/.exports
+
+    # Link binaries
+    if [[ -e $CODE_DIR ]]; then
+        ln -sf $CODE_DIR/v/v $ZSH_BIN_DIR/v
+        ln -sf $CODE_DIR/ref/ref $ZSH_BIN_DIR/ref
+    fi
+}
+
+echo "----------------------------------------------------------"
+echo "zs --- ZSH utility"
+echo "----------------------------------------------------------"
+echo "> Detected OS: $OS"
+echo "> Pulling in latest from Github..."
+[[ $1 = "install" ]] && zs-clean && zs-update && zs-install
+[[ $1 = "clean" ]] && zs-clean
+[[ $1 = "update" ]] && zs-update
+zs-link
+# echo "Restarting zsh..."
+# zsh

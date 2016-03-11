@@ -4,11 +4,11 @@
 
 # --- Verify ZGEN is installed ---
 #
-export ZGEN_CONFIG=($(find $ZSH_DIR/ -maxdepth 5 -type f -name 'zgen.zsh'  -print))
-#[[ -z "$ZGEN_CONFIG" ]] && \
-#    zlog red "Error: ZGEN not found!" && \
-#    zlog gray "Please install it from github to $ZSH_DIR/vendor/zgen" && exit
-#
+export ZGEN_CONFIG=($(find $ZSH_BASE_DIR/ -maxdepth 5 -type f -name 'zgen.zsh'  -print))
+[[ -z "$ZGEN_CONFIG" ]] && \
+   zlog red "Error: ZGEN not found!" && \
+   zlog gray "Please install it from github to $ZSH_DIR/vendor/zgen" && exit
+
 ## ++ zgen
 #zlog gray "zgen: sourcing $ZGEN_CONFIG"
 source $ZGEN_CONFIG
@@ -30,10 +30,9 @@ if ! zgen saved; then
         srijanshetty/node.plugin.zsh
         djui/alias-tips
         TBSliver/zsh-plugin-tmux-simple
-        unixorn/autoupdate-zgen
         zsh-users/zsh-completions
+        zsh-users/zsh-history-substring-search
 EOPLUGINS
-        #zsh-users/zsh-history-substring-search
         #zsh-users/zaw
         #horosgrisa/zsh-konsole-theme-changer
         #RobSis/zsh-completion-generator
@@ -80,6 +79,10 @@ EOPLUGINS
     zgen load zsh-users/zsh-completions src
     # Load last:
     zgen load tarruda/zsh-autosuggestions
+
+    if [[ $OSX ]]; then
+       zgen load mkwmms/dotstrap-osx
+    fi
 
     # save all to init script
     zgen save

@@ -1,3 +1,2 @@
-
 vimbin() { nvim $(which $1) }
 alias vbin="vimbin"

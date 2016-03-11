@@ -27,8 +27,8 @@ PDF_EDITOR="calibre"
 typeset -A apps=(
 
 # DESKTOP
-"s" $SHELL
-"b" $BROWSER
+"s" "$SHELL"
+"b" "$BROWSER"
 "pb" post-boot
 
 # EMAIL

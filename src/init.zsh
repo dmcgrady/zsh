@@ -1,4 +1,4 @@
-#!/usr/bin/zsh
+#!/usr/local/bin/zsh
 
 #=========================================================
 #
@@ -6,7 +6,22 @@
 #
 #=========================================================
 
-export ZSH_DIR="$HOME/zsh"
+locate-config() {
+    local _config=$(find $1 -maxdepth 4 -type f -name "config.zsh" -print)
+    source $_config
+}
+
+if [[ -e "$ZSH_DIR/config.zsh" ]]; then
+    source $ZSH_DIR/config.zsh
+else
+    if [[ -e "$HOME/zsh" ]]; then
+        locate-config $HOME/zsh
+    else
+        echo "ERROR: ZSH_DIR and/or `config.zsh` not found!"
+        echo "Make sure you run `zs` from ZSH_DIR"
+    fi
+fi
+
 export ZSH_CALLBACKS=()
 export ZSH_LOADING=true
 
@@ -21,15 +36,17 @@ fpath=(
 )
 
 path=(
+    $path
+    $ZSH_BIN_DIR
     $HOME/.bin
+    /usr/local/bin
     $HOME/.local/bin
-    $ZSH_DIR/functions
     $HOME/.cabal/bin
     $HOME/.xmonad/bin
     $HOME/.rvm/bin
     $HOME/.gem/bin
     $GOPATH/bin
-    $path
+    $ZSH_DIR/functions
 )
 
 #---------------------------------------------------------
@@ -90,7 +107,7 @@ SYSTEM_CONFIGS=(
 )
 
 ZSH_MODULES+=(
-    options
+    osx
     logger
     zgen
     plugins
@@ -100,7 +117,7 @@ ZSH_MODULES+=(
     theme
 )
 
-each $SYSTEM_CONFIGS source
+#each $SYSTEM_CONFIGS source
 import $ZSH_MODULES
 
 #---------------------------------------------------------
@@ -120,3 +137,5 @@ each $ZSH_CALLBACKS execute
 #=========================================================
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+#eval "$(rbenv init - --no-rehash)"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

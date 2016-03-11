@@ -8,8 +8,8 @@ search=(
     ss-ps      "ps -ef SS"
 
     # Locate
-    ll         "locate"
-    llu        "sudo updatedb"
+    ll "locate"
+    llu "sudo updatedb"
 )
 
 alias P -G "| pt"
@@ -18,8 +18,14 @@ for k in "${(@k)search}"; do
     alias "$k"="$search[$k]"
 done
 
-
+# Search history helper
 ss-history() {
     local _results="$(history | SS $1)"
     print $_results
 }
+
+# OSX
+if [[ $OSX ]]; then
+    alias llu="sudo /usr/libexec/locate.updatedb"
+fi
+

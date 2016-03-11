@@ -2,11 +2,28 @@
 # Options
 # ========================================================
 
+# FUNCTIONS ----------------------------------------------
+
+bin-exists() {
+    local bin_path="$(which $1)"
+    if [[ $bin_path =~ "not found" ]]; then
+        false
+    else
+        true
+    fi
+}
+
 # ZSH ----------------------------------------------------
 
-export ZSH_DIR="$HOME/zsh"
+export SHELL="zsh"
+export ZSH_BASE_DIR="$HOME/zsh"
+export ZSH_DIR="$ZSH_BASE_DIR/src"
+export ZSH_BIN_DIR="$ZSH_BASE_DIR/bin"
+export ZSH_VENDOR_DIR="$ZSH_BASE_DIR/vendor"
+
 export ZLOG_ENABLED=false # <-- Enable/disable logger
 export ZSH_BENCHMARK=false # <-- Enable: $(date +%s.%N)
+export ZSH_FUNCTIONS_DIR="$ZSH_DIR/functions"
 export ZSH_FUNCTIONS=($ZSH_FUNCTIONS_DIR/*(:t))
 
 EXPORT_ALIASES() {
@@ -23,47 +40,51 @@ export ZGEN_SYSTEM_UPDATE_DAYS=3
 
 # DESKTOP ------------------------------------------------
 
+# TASKS
+export TODO="$HOME/TODO.tasks"
+
 # EDITOR
 export EDITOR="nvim"
-export EDITOR_CONF="$HOME/.config/nvim"
 export VISUAL=$EDITOR
 
 # TERMINAL
 export TERM="xterm-256color"
-#export TERMINAL="termite"
 
 # SEARCH
-if [[ -e /usr/bin/pt ]]; then
+if bin-exists "pt"; then
     export SEARCH="pt"
-elif [[ -e /usr/bin/ag ]]; then
+elif bin-exists "ag"; then
     export SEARCH="ag"
 else
     export SEARCH="grep"
 fi
 
-# SHELL
-if [[ -e /usr/bin/zsh ]]; then
-    export SHELL="zsh"
+# BROWSER
+if bin-exists "qutebrowser"; then
+    export BROWSER="qutebrowser"
+elif bin-exists "google-chrome-unstable"; then
+    export BROWSER="google-chrome-unstable"
+elif bin-exists "chromium"; then
+    export BROWSER="chromium"
+elif bin-exists "google-chrome-unstable"; then
+    export BROWSER="google-chrome-unstable"
+elif bin-exists "google-chrome-dev"; then
+    export BROWSER="google-chrome-dev"
+elif bin-exists "google-chrome"; then
+    export BROWSER="google-chrome"
+elif bin-exists "firefox"; then
+    export BROWSER="firefox"
 else
-    export SHELL="bash"
+    export BROWSER="google-chrome-canary"
 fi
 
-# BROWSER
-if [[ -e /usr/bin/qutebrowser ]]; then
-    export BROWSER="qutebrowser"
-elif [[ -e /usr/bin/google-chrome-unstable ]]; then
-    export BROWSER="google-chrome-unstable"
-elif [[ -e /usr/bin/chromium ]]; then
-    export BROWSER="chromium"
-elif [[ -e /usr/bin/google-chrome ]]; then
-    export BROWSER="google-chrome"
-elif [[ -e /usr/bin/firefox ]]; then
-    export BROWSER="firefox"
-fi
+# Detect OSX
+export UNAME="$(uname -a)"
+[[ $UNAME =~ "Darwin" ]] && export OSX=true        && export OS="OSX"
+[[ $UNAME =~ "Linux" ]]  && export LINUX=true      && export OS="linux"
+[[ $UNAME =~ "ARCH" ]]   && export ARCHLINUX=true  && export OS="archlinux"
 
 # OS
-export XDG_CONFIG_HOME="$HOME/.config"
-export OS="archlinux"
 export LANG="en_US.UTF-8"
 export ARCHFLAGS="-arch x86_64"
 export SSH_KEY_PATH="~/.ssh/id_localhost"
@@ -79,6 +100,17 @@ export REPORTTIME=2
 export TIMEFMT="%U user %S system %P cpu %*Es total"
 export LS_COLORS='di=34:ln=32:so=1;;35:pi=1;;35:ex=1;;31:bd=45:cd=45:su=41:sg=41:tw=40:ow=40:*.rpm=1;;36'
 
+if [[ $LINUX ]]; then
+    export XDG_CONFIG_HOME="$HOME/.config"
+    export XDG_DESKTOP_DIR="$HOME/"
+    export XDG_DOWNLOAD_DIR="$HOME/downloads"
+    export XDG_TEMPLATES_DIR="$HOME/downloads"
+    export XDG_PUBLICSHARE_DIR="$HOME/downloads"
+    export XDG_DOCUMENTS_DIR="$HOME/notes"
+    export XDG_MUSIC_DIR="$HOME/music"
+    export XDG_PICTURES_DIR="$HOME/pictures"
+    export XDG_VIDEOS_DIR="$HOME/video"
+fi
 
 # TERMINAL -----------------------------------------------
 
@@ -98,23 +130,5 @@ setopt extendedglob
 # Allow [ or ] whereever you want
 unsetopt nomatch
 
-# makes color constants available
-
 # Enable global OSX colors
 export CLICOLOR=1
-#export LSCOLORS=GxFxCxDxBxegedabagaced
-# This file is written by xdg-user-dirs-update
-# If you want to change or add directories, just edit the line you're
-# interested in. All local changes will be retained on the next run
-# Format is XDG_xxx_DIR="$HOME/yyy", where yyy is a shell-escaped
-# homedir-relative path, or XDG_xxx_DIR="/yyy", where /yyy is an
-# absolute path. No other format is supported.
-#
-XDG_DESKTOP_DIR="$HOME/"
-XDG_DOWNLOAD_DIR="$HOME/downloads"
-XDG_TEMPLATES_DIR="$HOME/downloads"
-XDG_PUBLICSHARE_DIR="$HOME/downloads"
-XDG_DOCUMENTS_DIR="$HOME/notes"
-XDG_MUSIC_DIR="$HOME/music"
-XDG_PICTURES_DIR="$HOME/pictures"
-XDG_VIDEOS_DIR="$HOME/video"

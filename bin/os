@@ -1,0 +1,205 @@
+#!/usr/bin/env zsh
+
+# ----------------------------------------------------------------------------
+# os
+# OS SETUP AUTOMATION UTILITY
+# ----------------------------------------------------------------------------
+#
+#    Usage:
+#       $ os
+#
+# ----------------------------------------------------------------------------
+
+# TODO
+# - User input ---> commands (install, clean)
+# - Replace lists of os-install-* with array loop
+# - Fresh install function
+
+# FUNCTIONS ----------------------------------------------------------
+
+os-install() {
+    #xcode-select --install
+    # TODO: install homebrew, RVM, etc
+    #ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+}
+
+os-clean() {
+    sudo rm -rvf ~/Library/Logs/*
+    sudo rm -rvf /Library/Logs/*
+    sudo rm -rvf /var/log/*
+    sudo rm -rfv /Volumes/*/.Trashes
+
+    rm -rvf ~/Library/Logs/*
+    rm -rfv ~/.Trash/*
+    rm -rfv ~/.Trash/.*
+}
+
+os-update() {
+    echo "> Updating...."
+    brew update
+    brew upgrade
+
+    sudo /usr/libexec/locate.updatedb &
+}
+
+os-install-lib() {
+    bin_name="$(basename $1)"
+    if [[ ! -e "/usr/local/Cellar/$bin_name" ]]; then
+        echo "> SKIPPING LIB: $bin_name already installed"
+        return false
+    else
+        echo "> INSTALLING LIB: $bin_name"
+        brew install $1 $2
+        [[ -n "$3" ]] && $3
+        return true
+    fi
+}
+
+os-install-cask() {
+    bin_name="$(basename $1)"
+    if [[ -e "/opt/homebrew-cask/Caskroom/$bin_name" ]]; then
+        echo "> SKIPPING CASK: $bin_name already installed"
+        return false
+    else
+        echo "> INSTALLING CASK: $bin_name"
+        brew cask install $1 $2
+        [[ -n "$3" ]] && $3
+        return true
+    fi
+}
+
+os-install-tap() {
+    # TODO
+}
+
+# MAIN ---------------------------------------------------------
+
+echo "----------------------------------------------------------"
+echo "INSTALLING OS PACKAGES"
+echo "----------------------------------------------------------"
+#os-update
+
+# LIBRARIES ----------------------------------------------------------
+
+echo "> Libraries...."
+
+brew tap homebrew/dupes
+
+# GNU
+brew install coreutils
+brew install binutils
+brew install diffutils
+brew install ed --default-names
+brew install findutils --with-default-names
+brew install gawk
+brew install gnu-indent --with-default-names
+brew install gnu-sed --with-default-names
+brew install gnu-tar --with-default-names
+brew install gnu-which --with-default-names
+brew install gnutls
+brew install grep --with-default-names
+brew install gzip
+brew install watch
+brew install wdiff --with-gettext
+brew install gpatch
+brew install m4
+brew install make
+brew install nanorew
+brew install wget
+brew install file-formula
+brew install less
+brew install unzip
+brew install gdb  # gdb requires further actions to make it work. See `brew info gdb`.
+brew info gdb
+
+# System
+os-install-lib "bash"
+os-install-lib "zsh" "" "brew link --force zsh"
+os-install-lib "tmux"
+os-install-lib "openssl"
+os-install-lib "curl" "--with-openssl"
+os-install-lib "openssh" "--with-brewed-openssl --with-keychain-support"
+os-install-lib "git"
+os-install-lib "svn"
+os-install-lib "emacs"
+os-install-lib "vim" "--override-system-vi"
+os-install-lib "screen"
+
+if os-install-lib "dnscrypt-proxy" "--with-dnssec"; then
+    sudo chown root /Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist
+    sudo launchctl load /Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist
+fi
+
+if os-install-lib "dnscrypt-proxy"; then
+    sudo chown root /Library/LaunchDaemons/homebrew.mxcl.dnscrypt-proxy.plist
+    sudo launchctl load /Library/LaunchDaemons/homebrew.mxcl.dnscrypt-proxy.plist
+fi
+
+#os-install-lib "gnupg"
+os-install-lib "homebrew/versions/gnupg21"
+
+os-install-lib "python-HEAD"
+os-install-lib "python-pip"
+
+os-install-lib "otto"
+os-install-lib "go"
+
+os-install-lib "erlang"
+os-install-lib "homebrew/devel-only/rebar3" "--devel"
+os-install-lib "rebar"
+os-install-lib "rethinkdb"
+
+os-install-lib "the_silver_searcher"
+os-install-lib "the_platinum_searcher"
+
+if os-install-lib "kwm"; then
+    sudo chown root:wheel  ~/Library/LaunchAgents/homebrew.mxcl.kwm.plist
+    sudo launchctl load ~/Library/LaunchAgents/homebrew.mxcl.kwm.plist
+fi
+
+# CASK ----------------------------------------------------------
+
+echo "> Casks...."
+brew tap caskroom/fonts
+
+# Fonts
+os-install-cask "font-advent-pro"
+os-install-cask "font-inconsolata"
+os-install-cask "font-inconsolata-dz"
+os-install-cask "font-inconsolata-g-for-powerline"
+os-install-cask "font-anonymous-pro"
+os-install-cask "font-devicons"
+os-install-cask "font-droid-sans"
+os-install-cask "font-fontawesome"
+os-install-cask "font-meslo-lg-for-powerline"
+os-install-cask "font-meslo-lg-for-powerline"
+os-install-cask "font-monoid"
+os-install-cask "font-source-code-pro"
+os-install-cask "font-noto-sans"
+os-install-cask "font-noto-serif"
+os-install-cask "font-roboto"
+os-install-cask "font-termius"
+os-install-cask "font-dejavu-sans"
+os-install-cask "font-3270Medium"
+os-install-cask "font-hack"
+
+# Browsers
+#brew cask install google-chrome-canary
+os-install-cask "google-chrome-canary" "" "echo \"\#!/bin/bash\n\nopen /Applications/Google Chrome Canary.app\" > /usr/local/bin/google-chrome-canary"
+os-install-cask "firefox-aurora"
+
+# Utilities
+os-install-cask "iterm2"
+os-install-cask "alfred"
+
+# Terminal Utilities
+os-install-lib "fzf" "" "/usr/local/opt/fzf/install"
+os-install-lib "peco"
+
+# TAP ----------------------------------------------------------
+echo "> Taps...."
+# TODO: install-tap function
+
+# brew tap neovim/neovim
+# brew tap rogual/neovim-dot-app
+# os-install-lib "neovim-dot-app" "--HEAD"

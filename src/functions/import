@@ -25,10 +25,10 @@ import() {
     function _import() {
         local _module=$1
         local _filename="$(basename $_module).zsh"
-        local _location=$(find $ZSH_DIR -maxdepth 3 \
-                                        -type f \
-                                        -name $_filename \
-                                        -print)
+        local _location=$(find $ZSH_BASE_DIR -maxdepth 4 \
+                                             -type f \
+                                             -name $_filename \
+                                             -print)
         source $_location
     }
 
