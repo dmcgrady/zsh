@@ -110,3 +110,4 @@ zle-line-init() {
 }
 
 zle -N zle-line-init
+

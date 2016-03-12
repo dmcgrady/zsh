@@ -1,3 +1,6 @@
+# TASKS Aliases
+# ----------------------------------------------------------
+
 function note() {
     local _dir="$HOME/notes"
     local _file="$_dir/$1.md"
@@ -12,7 +15,7 @@ function note() {
     fi
 }
 
-function todo() {
+function new-todo() {
     cd $HOME/notes
     $EDITOR $1.todo
 }

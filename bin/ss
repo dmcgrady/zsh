@@ -84,5 +84,5 @@ ss() {
     echo ${Args#$Action}
 }
 
-eval alias
-# $Commands[$Action] ${Args#$Action}
+#eval alias
+$Commands[$Action] ${Args#$Action}

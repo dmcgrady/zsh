@@ -20,7 +20,7 @@ done
 
 # Search history helper
 ss-history() {
-    local _results="$(history | SS $1)"
+    local _results="$(history | ss $1)"
     print $_results
 }
 
@@ -29,3 +29,6 @@ if [[ $OSX ]]; then
     alias llu="sudo /usr/libexec/locate.updatedb"
 fi
 
+file-extensions() {
+    grep -o -E "(\\.\w\w\w|\\.\w\w\w\w|\\.\w\w\w\w\w)+" $1 | sed 's/.//'
+}

@@ -2,6 +2,9 @@
 # Options
 # ========================================================
 
+export NAME="Tim Godin"
+export EMAIL="t1m0thyg0d1n1987@gmail.com"
+
 # FUNCTIONS ----------------------------------------------
 
 bin-exists() {
@@ -120,6 +123,9 @@ export ZSH_TMUX_AUTOSTART_ONCE=true
 export ZSH_TMUX_AUTOCONNECT=true
 export ZSH_TMUX_AUTOQUIT=$ZSH_TMUX_AUTOSTART
 export ZSH_TMUX_FIXTERM=true
+
+# skip verification when using fc or !!
+setopt no_hist_verify
 
 # awesome cd movements from zshkit
 setopt autocd autopushd pushdminus pushdsilent pushdtohome cdablevars

@@ -110,6 +110,7 @@ ZSH_MODULES+=(
     osx
     logger
     zgen
+    regex
     plugins
     keybindings
     login

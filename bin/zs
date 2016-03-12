@@ -18,6 +18,7 @@
 source src/config.zsh
 
 zs-install() {
+
     # Install vendor libraries
     echo "> Cloning vendor libraries..."
     git clone https://github.com/kowalskey/base16-builder $ZSH_VENDOR_DIR/base16-builder

@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
 
+source $ZSH_BIN_DIR/os.conf
+
 # ----------------------------------------------------------------------------
 # os
 # OS SETUP AUTOMATION UTILITY
@@ -11,58 +13,80 @@
 # ----------------------------------------------------------------------------
 
 # TODO
-# - User input ---> commands (install, clean)
-# - Replace lists of os-install-* with array loop
-# - Fresh install function
+# - does xcode fail gracefully?
 
-# FUNCTIONS ----------------------------------------------------------
+# PROGRAM ----------------------------------------------------------
 
-os-install() {
-    #xcode-select --install
-    # TODO: install homebrew, RVM, etc
-    #ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+os-log() {
+    echo "[os]> $@"
 }
 
-os-clean() {
-    sudo rm -rvf ~/Library/Logs/*
-    sudo rm -rvf /Library/Logs/*
-    sudo rm -rvf /var/log/*
-    sudo rm -rfv /Volumes/*/.Trashes
+os-install() {
+    os-log "Installing OS Libraries, Apps, and Configs!"
 
-    rm -rvf ~/Library/Logs/*
-    rm -rfv ~/.Trash/*
-    rm -rfv ~/.Trash/.*
+    # Install xcode...
+    os-log "Installing XCode..."
+    xcode-select --install
+
+    # Run installers...
+    os-log "Running installers..."
+    git-install
+    brew-install
+    ruby-install
+    gem-install
+
+    # Clean up OS ...
+    os-log "Clean up before we go..."
+    os-cleaner
+
+    os-log "Done."
+}
+
+os-cleaner() {
+    os-log "Starting OS cleaner!"
+    disk-size-start
+
+    # Ask for the administrator password upfront
+    os-log "Requesting admin..."
+    sudo -v
+
+    # Clean-up homebrew
+    os-log "Cleaning homebrew..."
+    brew-clean
+
+    # Clean system directories
+    os-log "Cleaning trash and system directories..."
+    for i in $clean_dirs; do
+        os-log "[os-clean]> Removing directory $i"
+        #sudo -v
+        #sudo rm -rfv $_DIIRR &>/dev/null
+    done
+
+    disk-size-end
+    os-log "OS cleaner finished"
 }
 
 os-update() {
-    echo "> Updating...."
-    brew update
-    brew upgrade
+    os-log "Updating...."
 
+    # Update NeoVim plugins
+    brew-update
+    neovim-update
+    ruby-update
+    gem-update
+
+    # Update locate db
     sudo /usr/libexec/locate.updatedb &
 }
 
-os-install-lib() {
+os-pkg-install() {
     bin_name="$(basename $1)"
     if [[ ! -e "/usr/local/Cellar/$bin_name" ]]; then
-        echo "> SKIPPING LIB: $bin_name already installed"
+        os-log "> SKIPPING LIB: $bin_name already installed"
         return false
     else
-        echo "> INSTALLING LIB: $bin_name"
+        os-log "> INSTALLING LIB: $bin_name"
         brew install $1 $2
-        [[ -n "$3" ]] && $3
-        return true
-    fi
-}
-
-os-install-cask() {
-    bin_name="$(basename $1)"
-    if [[ -e "/opt/homebrew-cask/Caskroom/$bin_name" ]]; then
-        echo "> SKIPPING CASK: $bin_name already installed"
-        return false
-    else
-        echo "> INSTALLING CASK: $bin_name"
-        brew cask install $1 $2
         [[ -n "$3" ]] && $3
         return true
     fi
@@ -72,134 +96,273 @@ os-install-tap() {
     # TODO
 }
 
+# NEOVIM --------------------------------------------------------------------
+
+function neovim-update() {
+    echo "[neovim-update]> Updating NeoVim plugins!"
+    nvim +PlugClean +PlugInstall +PlugUpdate
+    echo "[neovim-update]> Done."
+}
+
+# GIT -----------------------------------------------------------------------
+
+function git-install() {
+    echo "[git-install] Configuring git..."
+    git config --global user.name  $NAME
+    git config --global user.email $EMAIL
+    git config --global credential.helper osxkeychain
+    echo "[git-install] Done."
+}
+
+# RUBYgem -------------------------------------------------------------------
+
+function gem-pkg-install() {
+  if gem list "$1" --installed > /dev/null; then
+    gem update "$@"
+  else
+    gem install "$@"
+  fi
+}
+
+function gem-pkgs() {
+    echo "[gem-pkgs]> Installing (or updating) gems..."
+    for g in $gems; do
+        echo "[gem-pkgs]> Checking gem $g..."
+        gem-pkg-install $g
+    done
+
+    echo "[gem-pkgs]> Cleaning up gems..."
+    gem cleanup
+    echo "[gem-pkgs]> Done."
+}
+
+function gem-pkg-install()  {
+    echo "[gem-install]> Installing gems!"
+    gem-pkgs
+    echo "[gem-install]> Done."
+}
+
+function gem-update()  {
+    echo "[gem-update]> Updating rubygems!"
+
+    echo "[gem-update]> Updating system rubygem..."
+    gem update --system
+
+    echo "[gem-update]> Updating gems..."
+    gem-pkgs
+
+    echo "[gem-update]> Done."
+}
+
+# RUBYgem ------------------------------------------------------------------
+
+function ruby-update()  {
+    echo "[ruby-update]> Updating Ruby!"
+    source "$HOME/.rvm/scripts/rvm"
+
+    echo "[ruby-update]> Updating RVM..."
+    rvm get head # {stable,head} upgrades RVM to the stale or git head branches.
+    rvm reload
+
+    echo "[ruby-update]> Updating ruby stable..."
+    rvm use $ruby_stable
+    gem-update
+
+    echo "[ruby-update]> Updating ruby head..."
+    rvm use $ruby_head
+    gem-update
+
+    echo "[ruby-update]> Cleaning up RVM..."
+    rvm osx-ssl-certs
+    rvm fix-permissions
+    rvm repair
+
+    echo "[ruby-update]> Done."
+}
+
+function ruby-installed() {
+    rvm list | grep -Fx "$1" && return=true
+    return false
+}
+
+function ruby-install-version() {
+    echo "[ruby-install-version] Checking ruby-$1..."
+    if ! ruby-installed $1; then
+        echo "[ruby-install-version] Installing ruby-$1..."
+        rvm install $1
+    else
+        echo "[ruby-install-version] Skipping ruby-$1, already installed."
+    fi
+}
+
+function ruby-install() {
+    echo "[ruby-install]> Installing Ruby!"
+    curl -L https://get.rvm.io | bash
+    source "$HOME/.rvm/scripts/rvm"
+    rvm get head
+    rvm reload
+    rvm use system # Switch back to system install (1.8)
+
+    # Install rubies
+    ruby-install-version $ruby_stable
+    ruby-install-version $ruby_head
+
+    # Set defaults and fix permissions
+    rvm use $ruby_head --default
+    echo "[ruby-install]> Done."
+}
+
+# HOMEBREW ----------------------------------------------------------
+
+function brew-install() {
+    echo "[brew-install]> Installing homebrew..."
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+    brew-update
+    echo "[brew-install]> Done."
+}
+
+function brew-update() {
+    echo "[brew-update]> Updating homebrew..."
+    brew update
+    brew outdated
+    brew upgrade --all
+
+    brew-pkgs
+    brew-clean
+    echo "[brew-update]> Done."
+
+}
+function brew-clean() {
+    echo "[brew-clean]> Cleaning homebrew!"
+    brew cleanup --force -s &>/dev/null
+    rm -rfv /Library/Caches/Homebrew/* &>/dev/null
+    brew tap --repair &>/dev/null
+    brew doctor
+    brew prune
+    echo "[brew-clean]> Done."
+}
+
+function brew-pkgs() {
+    echo "[brew-pkgs] Installing (or updating) all brew packages and casks..."
+    echo "[brew-pkgs]> Checking taps..."
+    for tap in $homebrew_taps; do
+        # echo "[brew-pkgs]> Tapping tap: $tap..."
+        brew-tap $tap
+    done
+    brew update && brew upgrade
+    echo "[brew-pkgs]> Checking pkgs..."
+    for pkg in $homebrew_pkgs; do
+        # echo "[brew-pkgs]> Checking package: $pkg..."
+        brew-pkg-install "$pkg" false
+    done
+    echo "[brew-pkgs]> Checking casks..."
+    for cask in $homebrew_casks; do
+        # echo "[brew-pkgs]> Checking cask: $cask..."
+        brew-pkg-install "$cask" true
+    done
+    for launcher in $homebrew_launcherss; do
+        # echo "[brew-pkgs]> Loading launcher: $launcher..."
+        brew-launchctl-load $launcher
+    done
+    echo "[brew-pkgs]> Done."
+}
+
+function brew-pkg-install() {
+    name="$1"
+    cask=$2 # true/false
+    args=("${(@s/ /)name}") # @ modifier
+    pkgname="$args[1]"
+    pkgargs="$args[2,10]"
+    [[ $pkgname == "" ]] && local pkgname="$1"
+
+    # Check if installed
+    if [[ ! -e "$(brew ls --versions $pkgname 2> /dev/null | head -1)"  ]]; then
+        echo "[brew-pkg-install]> ---------------------------------------------------------"
+        echo "[brew-pkg-install]> Attempting to install package: $pkgname $pkgargs"
+
+        if $cask; then
+            brew cask install $pkgname $pkgargs #2> /dev/null
+        else
+            brew install $pkgname $pkgargs #2> /dev/null
+        fi
+        local callback="post-$pkgname"
+        local detected="$(which $callback)"
+        if [[ ! $detected =~ "not found" ]]; then
+            echo "[brew-pkg-install]> Detected callback: \"$callback\", executing..."
+            $callback
+        fi
+    fi
+}
+
+function brew-tap() {
+   brew tap "$1" --repair 2> /dev/null
+}
+
+function brew-expand-alias() {
+   brew info "$1" 2>/dev/null | head -1 | awk '{gsub(/.*\//, ""); gsub(/:/, ""); print $1}'
+}
+
+function brew-launchctl-load() {
+   local name
+   name="$(brew-expand-alias "$1")"
+   local domain="homebrew.mxcl.$name"
+   local plist="$domain.plist"
+
+   mkdir -p "$HOME/Library/LaunchAgents"
+   ln -sfv "/usr/local/opt/$name/$plist" "$HOME/Library/LaunchAgents"
+
+   if launchctl list | grep -Fq "$domain"; then
+      launchctl unload "$HOME/Library/LaunchAgents/$plist" >/dev/null
+   fi
+   launchctl load "$HOME/Library/LaunchAgents/$plist" >/dev/null
+}
+
+# DISK SIZE -----------------------------------------------------------------
+
+disk-size-start=0
+disk-size-end=0
+
+function disk-size-start() {
+    disk-size-start=0
+    disk-size-end=0
+    disk-size-start=$(df -k | pt "disk1" | awk '{ print $4 }')
+    echo "[disk size]> Starting disk size: $disk-size-start"
+}
+
+function disk-size-end() {
+    disk-size-end=$(df -k | pt "disk1" | awk '{ print $4 }')
+    echo "[disk size]> Ending disk size: $disk-size-end"
+    disk_size=(( disk-size-end - disk-size-start ))
+    disk_size_byte=(( disk_size * 1024  ))
+    disk_size_mb=(( disk_byte / 1048576	))
+    disk_size_gb=(( disk_byte / 1073741824 ))
+    echo "[disk size]> You recovered: $disk_size kb"
+    echo "[disk size]> $disk_size_byte bytes - $disk_size_mb mb - $disk_size_gb gb"
+    disk-size-start=0
+    disk-size-end=0
+}
+
 # MAIN ---------------------------------------------------------
 
-echo "----------------------------------------------------------"
-echo "INSTALLING OS PACKAGES"
-echo "----------------------------------------------------------"
-#os-update
+os-log "----------------------------------------------------------"
+os-log "                  OS UTILITY"
+os-log "----------------------------------------------------------"
+os-log "> Arguments: $@"
+os-log "> Detected OS: $OS"
 
-# LIBRARIES ----------------------------------------------------------
+# OS Utilities
+[[ $1 = "install" ]] && os-install && return
+[[ $1 = "clean" ]] && os-cleaner && return
+[[ $1 = "update" ]] && os-update && return
 
-echo "> Libraries...."
-
-brew tap homebrew/dupes
-
-# GNU
-brew install coreutils
-brew install binutils
-brew install diffutils
-brew install ed --default-names
-brew install findutils --with-default-names
-brew install gawk
-brew install gnu-indent --with-default-names
-brew install gnu-sed --with-default-names
-brew install gnu-tar --with-default-names
-brew install gnu-which --with-default-names
-brew install gnutls
-brew install grep --with-default-names
-brew install gzip
-brew install watch
-brew install wdiff --with-gettext
-brew install gpatch
-brew install m4
-brew install make
-brew install nanorew
-brew install wget
-brew install file-formula
-brew install less
-brew install unzip
-brew install gdb  # gdb requires further actions to make it work. See `brew info gdb`.
-brew info gdb
-
-# System
-os-install-lib "bash"
-os-install-lib "zsh" "" "brew link --force zsh"
-os-install-lib "tmux"
-os-install-lib "openssl"
-os-install-lib "curl" "--with-openssl"
-os-install-lib "openssh" "--with-brewed-openssl --with-keychain-support"
-os-install-lib "git"
-os-install-lib "svn"
-os-install-lib "emacs"
-os-install-lib "vim" "--override-system-vi"
-os-install-lib "screen"
-
-if os-install-lib "dnscrypt-proxy" "--with-dnssec"; then
-    sudo chown root /Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist
-    sudo launchctl load /Library/LaunchDaemons/homebrew.mxcl.dnsmasq.plist
-fi
-
-if os-install-lib "dnscrypt-proxy"; then
-    sudo chown root /Library/LaunchDaemons/homebrew.mxcl.dnscrypt-proxy.plist
-    sudo launchctl load /Library/LaunchDaemons/homebrew.mxcl.dnscrypt-proxy.plist
-fi
-
-#os-install-lib "gnupg"
-os-install-lib "homebrew/versions/gnupg21"
-
-os-install-lib "python-HEAD"
-os-install-lib "python-pip"
-
-os-install-lib "otto"
-os-install-lib "go"
-
-os-install-lib "erlang"
-os-install-lib "homebrew/devel-only/rebar3" "--devel"
-os-install-lib "rebar"
-os-install-lib "rethinkdb"
-
-os-install-lib "the_silver_searcher"
-os-install-lib "the_platinum_searcher"
-
-if os-install-lib "kwm"; then
-    sudo chown root:wheel  ~/Library/LaunchAgents/homebrew.mxcl.kwm.plist
-    sudo launchctl load ~/Library/LaunchAgents/homebrew.mxcl.kwm.plist
-fi
-
-# CASK ----------------------------------------------------------
-
-echo "> Casks...."
-brew tap caskroom/fonts
-
-# Fonts
-os-install-cask "font-advent-pro"
-os-install-cask "font-inconsolata"
-os-install-cask "font-inconsolata-dz"
-os-install-cask "font-inconsolata-g-for-powerline"
-os-install-cask "font-anonymous-pro"
-os-install-cask "font-devicons"
-os-install-cask "font-droid-sans"
-os-install-cask "font-fontawesome"
-os-install-cask "font-meslo-lg-for-powerline"
-os-install-cask "font-meslo-lg-for-powerline"
-os-install-cask "font-monoid"
-os-install-cask "font-source-code-pro"
-os-install-cask "font-noto-sans"
-os-install-cask "font-noto-serif"
-os-install-cask "font-roboto"
-os-install-cask "font-termius"
-os-install-cask "font-dejavu-sans"
-os-install-cask "font-3270Medium"
-os-install-cask "font-hack"
-
-# Browsers
-#brew cask install google-chrome-canary
-os-install-cask "google-chrome-canary" "" "echo \"\#!/bin/bash\n\nopen /Applications/Google Chrome Canary.app\" > /usr/local/bin/google-chrome-canary"
-os-install-cask "firefox-aurora"
-
-# Utilities
-os-install-cask "iterm2"
-os-install-cask "alfred"
-
-# Terminal Utilities
-os-install-lib "fzf" "" "/usr/local/opt/fzf/install"
-os-install-lib "peco"
-
-# TAP ----------------------------------------------------------
-echo "> Taps...."
-# TODO: install-tap function
-
-# brew tap neovim/neovim
-# brew tap rogual/neovim-dot-app
-# os-install-lib "neovim-dot-app" "--HEAD"
+# Helper scripts
+[[ $@ = "brew install" ]] && brew-update && return
+[[ $@ = "brew clean " ]] && brew-clean && return
+[[ $@ = "brew update" ]] && brew-install && return
+[[ $@ = "ruby install" ]] && ruby-install && return
+[[ $@ = "ruby update" ]] && ruby-update && return
+[[ $@ = "gem install" ]] && gem-install && return
+[[ $@ = "gem update" ]] && gem-update && return
+[[ $@ = "neovim update" ]] && neovim-update && return
+[[ $@ = "git install" ]] && git-install && return
