@@ -1,0 +1,103 @@
+#!/usr/bin/env zsh
+
+typeset -A Module Commands
+
+# ------------------------------------------------------
+# dnet
+# ------------------------------------------------------
+
+Module=(
+    Name   'tasks'
+    About  'Interact with vim-tasks from a command-line'
+    Author 'Dan McGrady <dan@dmix.ca>'
+    Repo   'https://github.com/dmix/bin'
+)
+
+# Help -------------------------------------------------
+
+Help() { cat << EOF
+
+  Usage:
+
+      tasks <all|next|project> <filter>
+
+            all = [optional] list all tasks
+            next = [default] show next 3 tasks
+            project = [optional] filter tasks by project
+
+  Example:
+
+      $ tasks  OR tasks next
+      > Listing next 3 tasks todo...
+      >
+      > 1. Take out trash @home
+      > 2. Fix bed @home
+      > 3. Call peter @work
+
+      $ tasks project home
+      > Listing tasks for project @home...
+      >
+      > 1. Take out trash @home
+      > 2. Fix bed @home
+
+
+EOF
+exit
+}
+
+# Options -------------------------------------------------
+
+File="$HOME/notes/now.todo"
+Action=$1 # list, next, etc
+Commands=(
+    'all' tasks-all
+    'next' tasks-next
+    'now' tasks-now
+    'project' tasks-project
+    'done' tasks-done
+)
+
+# program -------------------------------------------------
+
+
+tasks-all() {
+    echo "vim-tasks: Listing all tasks... \n"
+    egrep '☐|:|✔"' $File | grep -v "✔"
+    echo "" && exit
+}
+
+tasks-now() {
+    echo "vim-tasks: Listing next 3x high priority tasks...\n"
+    grep -A 3 "HIGH:" $File | grep "☐"
+    echo "" && exit
+}
+
+tasks-next() {
+    echo "vim-tasks: Listing next tasks...\n"
+    egrep '☐|:|✔"' $File | grep -v "✔"
+    echo "" && exit
+}
+
+tasks-project() {
+    local _filter=$1
+    echo "vim-tasks: Listing tasks for project @$_filter... \n"
+    grep "@$_filter" $File
+    echo "" && exit
+}
+
+tasks-done() {
+    echo "vim-tasks: Listing completed tasks... \n"
+    grep '✔' $File
+    echo "" && exit
+}
+
+# Run Program
+# ------------------------------------------------------
+
+[ "$Action" =  "-h" ] && Help
+
+# Disable Logger
+[ ! $Action ] && Action="next"
+
+$Commands[$Action] $@
+

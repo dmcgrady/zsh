@@ -1,0 +1,9 @@
+each() {
+    local _args=($@)
+    local _items=(${_args#$_args[-1]})
+    local _fn="$@[-1]"
+
+    for i in "${(@i)_items}"; do
+        $_fn $i
+    done
+}

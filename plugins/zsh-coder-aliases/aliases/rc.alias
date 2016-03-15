@@ -1,0 +1,68 @@
+# ================================================================
+# Configs
+# ================================================================
+
+BASE_DIR=$HOME
+CONF_DIR=$HOME/.config
+
+typeset -A configs
+
+configs=(
+    # ~/
+    aliases    $BASE_DIR/zsh/aliases.zsh
+    i3         $BASE_DIR/.i3/config
+    i3s        $BASE_DIR/.i3/i3status.conf
+    zsh        $BASE_DIR/zsh/init.vim
+    ssh        $BASE_DIR/.ssh/config
+    znc        $BASE_DIR/.znc/configs/znc.conf
+    ssh        $BASE_DIR/.ssh/config
+    tmux       $BASE_DIR/tmux/tmux.conf
+    mutt       $BASE_DIR/.mutt/muttrc
+    imap       $BASE_DIR/.config/offlineimaprc
+    vim        $BASE_DIR/.config/nvim/init.vim
+    vim-theme  $BASE_DIR/zsh/vendor/base16-builder/output/vim/base16-t1mxg0d.vim
+    theme      $BASE_DIR/zsh/vendor/base16-builder/schemes/t1mxg0d.yml
+    x          $BASE_DIR/.Xresources
+    zsh        $BASE_DIR/.zshrc
+
+    # ~/.config/
+    qute    $CONF_DIR/qutebrowser/qutebrowser.conf
+    rebar   $CONF_DIR/rebar3/rebar.config
+    mpd     $CONF_DIR/mpd/mpd.conf
+    beets   $CONF_DIR/beets/config.yaml
+    dunst   $CONF_DIR/dunst/dunstrc
+    termite $CONF_DIR/termite/config
+    nvim    $CONF_DIR/nvim/init.vim
+    fonts   $CONF_DIR/fontconfig/fonts.conf
+
+    # /etc/
+    nginx   /etc/nginx/nginx.conf
+    hosts   /etc/hosts
+    ldm     /etc/lightdm/lightdm.conf
+    nginx   /etc/nginx/nginx.conf
+    sshd    /etc/ssh/sshdCONF_DIR
+    net     /etc/netctl/attack
+)
+
+
+for k in "${(@k)configs}"; do
+    rc-alias "$k" "$configs[$k]"
+done
+
+
+# ZSH Configs
+# ---------------------------------------------
+
+typeset -a _zsh_files
+local _zsh_files=($(find $ZSH_DIR/ -maxdepth 2 -type f -name '*.zsh'  -print))
+for _zsh_file in $_zsh_files; do
+    local _filename="$(basename -s .zsh $_zsh_file)"
+    alias z-$_filename="cd $ZSH_DIR && nvim $_zsh_file"
+done
+
+typeset -a _alias_files
+local _alias_files=($(find $ZSH_DIR/ -maxdepth 2 -type f -name '*.alias'  -print))
+for _alias_file in $_alias_files; do
+    local _filename="$(basename -s .alias $_alias_file)"
+    alias a-$_filename="cd $ZSH_DIR/aliases && nvim $_alias_file"
+done

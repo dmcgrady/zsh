@@ -1,0 +1,79 @@
+# v
+# Automate how you open files in Vim from ZSH with simple shortcuts, intelligent auto-completion, .
+
+# Similar to how `z/autjump` replace manually cd'ing everywhere, `v` replaces the need to find files, navigate to the directories, and type`vim` filename.
+
+# directories (although we do that too)
+
+# API
+# -----------------------------------------
+
+v <file>
+v <sudo file>
+v <path>
+v <dir>
+v <project>
+v <zsh-alias>
+v <zsh-lib>
+
+v conf          = edit self
+v conf <app>
+
+v note <name>
+v todo <name>
+
+v vim
+v vim <update|clean>
+v vim <theme|keys|plugins>
+
+v zsh
+v zsh <lib>
+v alias <alias>
+
+v bin  <bin>
+v ref  <ref>
+
+# Misc
+v hosts = /etc/hosts
+
+# Features
+# -----------------------------------------
+
+- Automatically detect your favourite text editor
+- Automatically appends sudo if needed
+- Creates files in some situations (notes, todo)
+- cd's into the directory of the file before opening
+- Manage your linux configs
+    - v conf vim
+    - Predefined list of shortcuts for the most popular app's configs
+    - Searches for <app>.conf,<app>rc,etc as fallback
+- Automatically finds file if not in current directory
+    - Searches `history` -> results ranked by # of occurences
+    - Searches via `locate` as fallback -> ranked by proximity
+- Automatically chmod +x when working with /bin/ files
+- Shortcuts to update vim plugins
+- Custom options:
+    $EDITOR
+    $CONFIGS
+    $WORK_DIR
+    $NOTES_DIR
+    $TODO_DIR
+
+# Why?
+# --------------------------
+
+- Spend less time looking for files
+    - Programmers can navigate codebases more efficently
+- No longer have to remember where each .conf, rc, etc file is
+    - every app is different
+- Forget which file you defined that alias in? No problem.
+- No more having to retype "sudo vim" because you forgot
+
+# Target audience
+# -----------------------------------------
+
+- Linux/OSX users who need to tweak .conf files often
+- Programmers who spend all day editing text files
+- Vim/Emacs users and CLI junkies in general
+- Very, very lazy people
+

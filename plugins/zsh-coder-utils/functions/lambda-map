@@ -1,0 +1,5 @@
+lamda-map() {
+    $1 | while IFS= read -r line;
+        do $2 "$line";
+    done
+}

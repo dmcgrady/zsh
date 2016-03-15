@@ -1,0 +1,9 @@
+rc-alias() {
+        local _app=$1
+        local _file=$2
+        local _first=$_app[0,1]
+
+        alias rc$_app="rc $_file"    #  $ rctermite
+        alias rc-$_app="rc $_file"   #  $ rc-termite
+        alias rc$_first="rc $_file"  #  $ rct
+}

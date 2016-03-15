@@ -21,8 +21,8 @@ bin-exists() {
 export SHELL="zsh"
 export ZSH_BASE_DIR="$HOME/zsh"
 export ZSH_DIR="$ZSH_BASE_DIR/src"
-export ZSH_BIN_DIR="$ZSH_BASE_DIR/bin"
 export ZSH_VENDOR_DIR="$ZSH_BASE_DIR/vendor"
+export ZSH_PLUGINS_DIR="$ZSH_BASE_DIR/plugins"
 
 export ZLOG_ENABLED=false # <-- Enable/disable logger
 export ZSH_BENCHMARK=false # <-- Enable: $(date +%s.%N)
@@ -123,6 +123,7 @@ export ZSH_TMUX_AUTOSTART_ONCE=true
 export ZSH_TMUX_AUTOCONNECT=true
 export ZSH_TMUX_AUTOQUIT=$ZSH_TMUX_AUTOSTART
 export ZSH_TMUX_FIXTERM=true
+export ZSH_TMUX_ITERM2=false
 
 # skip verification when using fc or !!
 setopt no_hist_verify

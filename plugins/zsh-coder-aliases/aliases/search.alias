@@ -1,0 +1,34 @@
+typeset -A search
+
+alias SS=$SEARCH || pt
+
+search=(
+    # Locate
+    ss-aliases "alias SS"
+    ss-ps      "ps -ef SS"
+
+    # Locate
+    ll "locate"
+    llu "sudo updatedb"
+)
+
+alias P -G "| pt"
+
+for k in "${(@k)search}"; do
+    alias "$k"="$search[$k]"
+done
+
+# Search history helper
+ss-history() {
+    local _results="$(history | ss $1)"
+    print $_results
+}
+
+# OSX
+if [[ $OSX ]]; then
+    alias llu="sudo /usr/libexec/locate.updatedb"
+fi
+
+file-extensions() {
+    grep -o -E "(\\.\w\w\w|\\.\w\w\w\w|\\.\w\w\w\w\w)+" $1 | sed 's/.//'
+}

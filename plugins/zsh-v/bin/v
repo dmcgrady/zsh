@@ -1,0 +1,153 @@
+#!/usr/bin/env zsh
+#source $ZSH_DIR/functions/each
+
+# Opening file in another directory:
+#
+#     $ v Xorg.0.log
+#     >
+#
+
+# Editor
+if [ -z $EDITOR ]; then
+    if [[ -e /usr/bin/nvim ]]; then
+        export EDITOR="nvim"
+        export EDITOR_CONF="$HOME/.config/nvim"
+    elif [[ -e /usr/bin/vim ]]; then
+        export EDITOR="vim"
+        export EDITOR_CONF="$HOME/.vim"
+    fi
+    [ ! -d $EDITOR_CONF ] && export EDITOR_CONF="$HOME"
+    export VISUAL=$EDITOR
+fi
+
+# -------------------------------------------------------
+# API
+# -------------------------------------------------------
+v-fzf() {
+    $EDITOR +"silent! FZF"
+}
+
+v-open() {
+    # Parse filepath
+    echo $1
+    file="$(readlink --canonicalize $1)"
+    dir="$(dirname $file)"
+
+    # Access rights
+    [ $dir[0,5] != "/home" ] && require-root
+
+    # Open vim
+    echo $dir
+    cd $dir
+    print "Opening $file with $EDITOR"
+    [ -d $file ] && v-fzf
+    [ ! -d $file ] && $EDITOR $file $opts
+}
+
+v-vim() {
+    cmd="$1"
+    file=""
+
+    # Parse cmd
+    [ "$cmd" = "plugins" ] && file="plugins.vim"
+    [ "$cmd" = "keys" ]    && file="keybindings"
+    [ "$cmd" = "rc" ]      && file="init.vim"
+    [ "$cmd" = "clean" ]   && file="" && opt="+\"silent! PlugClean!\" +qall"
+    [ "$cmd" = "update" ]  && file="" && opt="+\"silent! PlugUpdate\" +qall"
+    [ "$cmd" = "" ]  && file="."
+
+    v-open $EDITOR_CONF/$file
+    exit
+}
+
+v-bin() {
+    search "$1" "$(cat $HOME/.zsh_history)"
+    exit
+}
+
+v-bin-test() {
+    print "Running bin test..."
+    read -d '' _test_data <<"EOF"
+        cd /home/backup/dmix/backup
+        echo "blah" >> /var/log/Xorg.0.log
+        chmod +x install
+        vim install
+        bash install
+        /home/dmix/logs/Xorg.0.log
+        cat .zshrc
+EOF
+    search "Xorg.0.log" $_test_data
+    exit
+}
+
+v-xresources() {
+    nvim $HOME/.Xresources && xrdb $HOME/.Xresources
+    exit
+}
+
+
+# -------------------------------------------------------
+# INTERNAL FUNCTIONS
+# -------------------------------------------------------
+
+local rank() {
+    typeset -A _ranked
+    typeset -a _sorted
+    local _files=($@)
+    local _unique_files=(${(u)_files[@]})
+    for _uf in $_unique_files; do
+        _count=0
+        for _f in $_files; do
+            [ "$_f" = "$_uf" ] && (( _count = $_count + 1 ))
+        done
+        _sorted+=($_count)
+        _ranked+=($_count "$_f")
+    done
+    _sorted=(${(@nO)_sorted})
+    echo $_ranked[$_sorted[1]]
+}
+
+local filter() {
+    local _raw_data=$1
+    local _files=($(printf '%s\n' ${${(s: :)_raw_data}[2,-1]}))
+    local _filtered_files=()
+    for i in $_files; do
+        if [[ -e "$i" ]]; then
+           _filtered_files+="$i"
+        else
+            # print "Skipping $i: not found"
+        fi
+    done
+    rank $_filtered_files
+}
+
+local search() {
+    local _regex="(\/.*?\/)[^/]*?$1\S*"
+    local _data="$2"
+    local _sample=$_data[1,20]
+    print "Searching for $1 in '$_sample...'"
+    echo $_data | pt -e $_regex | \
+    awk 'match($0, /(\/.*?\/)[^/]*?\.\S*/) {
+        print substr($0, RSTART, RLENGTH)
+    }
+    ' | read -d '' _results
+    filter $_results
+}
+
+local require-root() {
+    [ "$(whoami)" != "root" ] && exec sudo -- "$0" "$@"
+}
+
+# -------------------------------------------------------
+# Run
+# -------------------------------------------------------
+
+Action="$1"
+Arguments=($@[2,-1])
+
+[[ $Action = "test" ]] && v-bin-locate-test
+[[ $Action = "bin" && $Arguments ]] && v-bin $Arguments
+[[ $Action = "x" ]] && v-xresources $Arguments
+[[ $Action = "vim" ]] && v-vim $Arguments
+[[ -e $Action ]] && v-open $@
+[[ -z $Action || $Action = "." ]] && v-open "."

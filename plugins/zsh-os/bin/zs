@@ -25,6 +25,12 @@ zs-install() {
     git clone https://github.com/kowalskey/base16-shell $ZSH_VENDOR_DIR/base16-shell
     git clone https://github.com/tarjoilija/zgen $ZSH_VENDOR_DIR/zgen
 
+    # zsh-directory-history
+    git clone https://github.com/tymm/zsh-directory-history $HOME/tmp/zsh-directory-history
+    sudo cp $HOME/tmp/zsh-directory-history/dirhist /usr/bin/
+    sudo cp $HOME/tmp/zsh-directory-history/dirlog /usr/bin/
+    sudo chmod +x /usr/bin/dirhist /usr/bin/dirlog
+
     # Install fzf
     echo "> Installing fzf..."
     git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf

@@ -1,0 +1,37 @@
+#=================================================================
+#
+#     📡 directory zsh files
+#     ----------------------------------------------------
+#     A helper function for returning a list of *.zsh files
+#     from a directory
+#
+#        Git repo: https://github.com/t1mxg0d/zsh
+#        Options:
+#             <1:directory> = (optional) directory to search in
+#                             Defaults to $ZSH_DIR. Searches 1x
+#                             level deep into the directory for
+#                             *.zsh files.
+#        Usage:
+#             directory-zsh-files <1:lib>
+#        Example:
+#             $ directory-zsh-files $HOME/zsh
+#             $ ($HOME/zsh/init.zsh
+#                $HOME/zsh/lib/plugins.zsh
+#                $HOME/zsh/lib/zgen.zsh)
+#
+#=================================================================
+
+directory-zsh-files() {
+#    # Parse lib directory
+#    local _directory=$ZSH_DIR/
+#    [ -n "$1" ] && local _directory=$1
+#    [ -z "$_directory" ] && \
+#        zlog red "Error: Function requires an argument: \
+#            _locate <directory>" && exit
+#
+#    # Locate lib
+#    local _lib=($(find $_directory -maxdepth 1 -type f -name '*.zsh'  -print))
+#    [ -z "$_lib" ] && \
+#        zlog red "Error: No *.zsh files found in $_directory" && exit
+#    return _lib
+}

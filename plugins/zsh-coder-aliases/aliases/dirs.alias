@@ -1,0 +1,131 @@
+# ===============================================================
+# DIRS
+# ===============================================================
+
+# --- Exports ---
+
+export ZSH=${HOME}/zsh
+export ZSH_CONFIG="$HOME/zsh"
+export DOTDIR="$HOME/annex"
+export HOMEMAKER="$HOME/annex"
+export WORK="$HOME/code"
+export GO="$WORK/go"
+export GOPATH="$HOME/go"
+export NOTES="$HOME/notes"
+export BACKUP="$HOME/crashplan/$(date +20%y-%m-%d)"
+export MANPATH="/usr/local/man:$MANPATH"
+export XDG_DESKTOP_DIR="/home/$USER"
+export HISTFILE="$HOME/.zsh_history"
+
+# --- Post-Aliases ---
+
+alias -g G='| grep'
+alias -g H='| head'
+alias -g T='| tail'
+alias -g L="| less"
+alias -g M="| most"
+
+alias -g LL="2>&1 | less" # Redirect stdout/stderr to less
+alias -g CA="2>&1 | cat -A"
+
+alias -g ...='../..'
+alias -g ....='../../..'
+alias -g .....='../../../..'
+alias -g ......='../../../../..'
+
+# --- Functions ---
+
+function take() {
+  mkdir -p $1
+  cd $1
+}
+
+# --- Aliases ---
+
+typeset -A shortcuts=(
+
+    # LS -----------------------------
+    l "ls -lGFh --color=auto"
+    ll "ls --color -h --group-directories-first -1 -s"
+    lS "ls --color -h --group-directories-first -1 -s -w 80"
+    lSs "ls -1FSshr"
+    lks "ls -ah1d --color --group-directories-first | grep -e \"->\"" # symlinks
+
+    # SIZES --------------------------
+    sizes "du -sh * | sort -h" # directory file sizes
+
+    # MODIFY -------------------------
+    md "mkdir -p"
+    rd "rm -r"
+    cpv "rsync -avh --progress" # cp with progress bar
+
+    # COPY ---------------------------
+    pbcopy "xsel --clipboard --input"
+    pbpaste "xsel --clipboard --output"
+    copydir "pwd | tr -d \"\r\n\" | pbcopy"
+    mergedirs "tail -n +1" # http://stackoverflow.com/a/7816490
+
+    # NOTES --------------------------
+    nn    "notes"
+    td    "todo"
+    tdd   "todo"
+    todo  "cd $NOTES && nvim $NOTES/now.todo"
+    notes "cd $NOTES"
+
+    # SYSTEM CONFIG ------------------
+    sysd  "cd /usr/lib/systemd/system"
+    ul    "cd /usr/local/"
+    ulb   "cd /usr/local/bin"
+    refs  "cd /usr/local/share/ref"
+
+    # dirs ----------------------------
+       .. "cd .."
+      ... "cd ../.."
+     .... "cd ../../../"
+    ..... "cd ../../../../"
+
+)
+
+for k in "${(@k)shortcuts}"; do
+    alias "$k"="$shortcuts[$k]"
+done
+
+
+# --- COMPLETIONS ---
+
+# Make zsh know about hosts already accessed by SSH
+zstyle -e ':completion:*:(ssh|scp|sftp|rsh|rsync):hosts' hosts 'reply=(${=${${(f)"$(cat {/etc/ssh_,~/.ssh/known_}hosts(|2)(N) /dev/null)"}%%[# ]*}//,/ })'
+
+# --- PATHS ---
+
+path=(
+  $path
+  $GOPATH/bin
+  $HOME/.local/bin
+  $HOME/.cabal/bin
+  $HOME/.xmonad/bin
+  $HOME/.rvm/bin
+  $HOME/dotfiles/
+  $HOME/dotfiles/bin
+  $HOME/dotfiles/zsh
+  $HOME/.gem
+  $HOME/.gem/bin
+  $HOME/.bin
+)
+
+fpath+="$HOME/zsh/completions"
+
+# --- Dirstack ---
+
+alias 1='cd -'
+alias 2='cd -2'
+alias 3='cd -3'
+alias 4='cd -4'
+alias 5='cd -5'
+alias 6='cd -6'
+alias 7='cd -7'
+alias 8='cd -8'
+alias 9='cd -9'
+
+alias d='dirs -v | head -10'
+

@@ -4,11 +4,17 @@
 
 typeset -A gitcmds
 
-# See: https://github.com/robbyrussell/oh-my-zsh/blob/master/plugins/git/git.plugin.zsh
 gitcmds=(
+    g     "git"
+    gcl   "clone"
+    gc    "commit"
+    gb    "checkout -b"
     gs    "status"
-    gundo "reset --soft HEAD~1"
+    gp    "pull"
+    gr    "remote -v"
+    gpl   "pull --rebase origin"
     gpo   "push origin"
+    gundo "reset --soft HEAD~1"
 )
 
 for k in "${(@k)gitcmds}"; do
@@ -38,7 +44,6 @@ annexcmds=(
     axupdate "get config/ zsh/ notes/ vault/ work/ pdf/ logs/ bin/"
 )
 
-# TODO: disabled
-# for k in "${(@k)annexcmds}"; do
-#     alias $k="ax $annexcmds[$k]"
-# done
+for k in "${(@k)annexcmds}"; do
+    alias $k="ax $annexcmds[$k]"
+done

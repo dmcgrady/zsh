@@ -1,0 +1,10 @@
+font-query() {
+    lambda-map $fonts basename
+}
+
+#print $ZSH_EVAL_CONTEXT
+#if [[ $ZSH_EVAL_CONTEXT == 'toplevel' ]]; then
+#    # Not being sourced so execute locate
+#    print "Font-query running..."
+#    font-query
+#fi

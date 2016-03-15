@@ -1,0 +1,19 @@
+# ZSH Dir
+alias zb="cd $ZSH_BIN_DIR && nvim"
+alias za="cd $ZSH_DIR/lib/aliases"
+alias vxa="cd $ZSH_DIR/lib/aliases && nvim"
+alias xm="cd $ZSH_DIR/lib"
+alias vxm="cd $ZSH_DIR/lib && nvim"
+alias x="cd $ZSH_DIR"
+alias vx="cd $ZSH_DIR && vim"
+
+# Zgen
+alias zgr="zgen reset && zsh"
+alias zgu="zgen update"
+
+# ZSH Bookmarks
+alias bj="jump"
+alias bb="bookmark"
+alias bd="deletemark"
+alias bp="showmarks"
+alias bl="showmarks"

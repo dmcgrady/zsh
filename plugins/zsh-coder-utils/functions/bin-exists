@@ -1,0 +1,8 @@
+bin-exists() {
+    local bin_path="$(which $1)"
+    if [[ $bin_path =~ "not found" ]]; then
+        false
+    else
+        true
+    fi
+}

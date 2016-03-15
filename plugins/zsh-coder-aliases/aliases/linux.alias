@@ -1,0 +1,147 @@
+# ================================================================
+# Unix
+# ================================================================
+#
+# Includes:
+#    - netctl
+#    - systemctl
+#    - ArchLinux
+#    - Apline Linux
+
+typeset -A unix
+
+unix=(
+    # TERMINAL ----------------------
+    p  "print"
+    q  "exit"
+    h  "history -n 1"
+    xu "xrdb $HOME/.Xresources && xmodmap $HOME/.Xmodmap"
+    rp  "fc -ln -1" # repeat
+    rps  "sudo \$(fc -ln -1)" # repeat as sudo
+    paths "print -l \${(s.:.)PATH}" # print paths
+
+    # PROCESSES ----------------------
+    ska "sudo killall -9"
+    ka "killall -9"
+    ps-ls "ps -ef"
+    ps-mon "glances"
+    sys "systemctl --no-pager"
+    pbcopy "xsel --clipboard --input"
+    pbpaste "xsel --clipboard --output"
+    copydir "pwd | tr -d \"\r\n\" | pbcopy"
+    mergefiles "tail -n +1" # http://stackoverflow.com/a/7816490
+
+    # Sudo
+    # s "pass sudo | sudo -S print \"authenticated\" && /usr/bin/sudo"
+    _ "sudo"
+    si "sudo -i"
+    siu "sudo -i -u" # switch to user
+    siur "sudo -i -u root" # switch to user
+
+    # System
+    tm "sudo ntpd -qg && s hwclock -w --utc"
+    bat "upower -d | grep percentage| head -1 | awk \"{print $2}\""
+    irc "killall -9 weechat && weechat"
+    laptopon "xrandr --output eDP1 --mode 1366x768"
+    laptopoff "xrandr --output eDP1 --off"
+    hdmion "xrandr --output HDMI1 --auto"
+    hdmi2on "xrandr --output HDMI2 --auto"
+
+    # PAX / GRSec
+    softon "sudo sysctl kernel.pax.softmode 1"
+    softoff "sudo sysctl kernel.pax.softmode 0"
+
+    # Systemd logs
+    logs "journalctl -p 5 --no-pager"
+    jj "logs -n 250"
+    jf "logs --follow"
+    errors "journalctl -p 3 --no-pager"
+    je "errors -n 250"
+    jef "errors --follow"
+
+    # Encryption
+    genpw "openssl rand -base64 50"
+
+    # openrc
+    # NETWORK -------------------------------------------------------------
+
+    dns  "sudo chattr -i /etc/resolv.conf && sv /etc/resolv.conf"
+    whatsip "curl ipinfo.io"
+    whatsip2 "wget -qO - icanhazip.com"
+    pg "ping -c 2 google.com"
+    iplink "sudo ip link set"
+    nscan "nmap 192.168.1.0/24"
+
+    # SSH/GPG ------------------------------------------------------------
+
+    shc "cat .ssh/config | grep Host"
+    scc "ssh control"
+    scr "ssh relay -t -- /bin/sh -c \"tmux has-session && exec tmux attach || exec tmux\""
+)
+
+for k in "${(@k)unix}"; do
+    alias "$k"="$unix[$k]"
+done
+
+# ================================================================
+# Systemctl
+# ================================================================
+
+# Systemctl (via oh-my-zsh plugin)
+sysctl_commands=(
+    start
+    stop
+    status
+    show
+    restart
+    enable
+    disable
+    reenable
+    reload
+    kill
+    list-unit-files
+    list-units
+    list-jobs
+)
+
+for c in $sysctl_commands; do
+    alias sys$c="sudo systemctl $c --no-pager"
+    alias sys-$c="sudo systemctl $c --no-pager"
+    alias sys$c[0,1]="sudo systemctl $c --no-pager"
+
+    alias sysu$c="systemctl --user $c"
+    alias sysu-$c="systemctl --user $c"
+    alias sysu-$c[0,1]="systemctl --user $c"
+done
+
+# ================================================================
+# Netctl
+# ================================================================
+
+netctl_commands=(
+    list
+    start
+    stop
+    restart
+    status
+    enable
+    disable
+)
+
+for c in $netctl_commands; do
+    alias n$c="sudo netctl $c"
+    alias n-$c="sudo netctl $c"
+done
+
+# ================================================================
+# Awk scripts
+# ================================================================
+
+alias ips="ifconfig -a | grep -o \"inet6\? \(\([0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\)\|[a-fA-F0-9:]\+\)\" | sed -e \"s/inet6* //\""
+alias cards="ifconfig -a | awk '/((wlp|en)\\w+)/ {print \$1}' | sed -e 's/://'"
+
+# ================================================================
+# SSH Hack
+# ================================================================
+
+function ssh-tmux() {/usr/bin/ssh -t $@ "tmux new-session -s arch || tmux attach-session -t arch";}

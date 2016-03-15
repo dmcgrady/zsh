@@ -1,0 +1,117 @@
+# ================================================================
+# Apps
+# ================================================================
+
+UNZIP="unzip -l"
+UNRAR="unrar l"
+UNTAR="tar -xvf"
+UNTARGZ="tar -zxvf"
+
+EMAIL_CLIENT="mutt"
+EMAIL_CLIENT_GUI="thunderbird-dev"
+
+FILE_MANAGER="ranger"
+FILE_MANAGER_GUI="nautilus"
+
+MUSIC_PLAYER="rhythmbox"
+VIDEO_PLAYER="smplayer"
+
+PHOTO_VIEWER="shotwell"
+PHOTO_EDTIOR="gimp"
+
+PDF_VIEWER="apvlv"
+PDF_VIEWER_GUI="acroread"
+PDF_EDITOR="calibre"
+
+# SHORTCUTS ----------------------------------------
+typeset -A apps=(
+
+# DESKTOP
+"s" "$SHELL"
+"b" "$BROWSER"
+"pb" post-boot
+
+# EMAIL
+m $EMAIL_CLIENT
+email $EMAIL_CLIENT_GUI
+om "offlineimap && mutt"
+
+# PROGRAMMING
+vg "valgrind"
+http "python -m SimpleHTTPServer"
+
+# MUSIC
+npc  "ncmpc --port 6667 --password"
+
+# ZIP
+utar "tar -xvf"
+utarz "tar -zxvf"
+
+# FILE MANAGER
+f $FILE_MANAGER
+files $FILE_MANAGER
+o  $FILE_MANAGER_GUI
+open $FILE_MANAGER_GUI
+
+# TERMINAL
+"t"  "tmux"
+"c"  "cp -r"
+"r"  "rm -r"
+calc  "bc -lq"
+wt  "ansiweather"
+
+)
+
+
+# EXTENSIONS ----------------------------------------
+
+typeset -A default_filetypes=(
+
+zip $UNZIP
+rar $UNRAR
+tar $UNTAR
+targz $UNTARGZ
+
+jpeg $PHOTO_VIEWER
+jpg $PHOTO_VIEWER
+png  $PHOTO_VIEWER
+tiff $PHOTO_VIEWER
+psd  $PHOTO_EDITOR
+ai $PHOTO_EDITOR
+
+pdf $PDF_VIEWER_GUI
+ps  $PDF_VIEWER
+html $BROWSER
+js  $EDITOR
+css $EDITOR
+erl $EDITOR
+c   $EDITOR
+mkv $VIDEO_PLAYER
+avi $VIDEO_PLAYER
+
+java $EDITOR
+h $EDITOR
+C $EDITOR
+cpp $EDITOR
+txt $EDITOR
+xml $EDITOR
+html $BROWSER
+xhtml $BROWSER
+gif $PHOTO_VIEWER
+jpg $PHOTO_VIEWER
+jpeg $PHOTO_VIEWER
+png $PHOTO_VIEWER
+bmp $PHOTO_VIEWER
+mp3 $MUSIC_PLAYER
+m4a $MUSIC_PLAYER
+ogg $MUSIC_PLAYER
+
+)
+
+for k in "${(@k)apps}"; do
+    alias $k="$apps[$k]"
+done
+
+for k in "${(@k)default_filetypes}"; do
+    alias -s $k="$default_filetypes[$k]"
+done

@@ -1,0 +1,87 @@
+# ================================================================
+# code
+# ================================================================
+export BABEL_CACHE_PATH=$HOME/tmp/.babel
+
+typeset -A code_cmd_aliases code_dir_aliases
+
+export CODE_DIR="$HOME/code"
+alias C="cd $CODE_DIR && echo \"-----> Get to work ------>\""
+export ERLANG_DIR="$HOME/erlang"
+alias E="cd $CODE_DIR && echo \"-----> Get to work ------>\""
+
+code_dir_aliases=(
+    # Side-projects
+    bin  "binkit"
+    blg  "blog"
+    ins  "insta"
+    cl   "carelogger"
+    cl2  "carelogger2"
+    dm   "dmix.ca"
+    zt   "zsh-torrents"
+
+    # Contra
+    con  "sideproject"
+    side "sideproject"
+
+    # Copperhead
+    csw  "website"
+    cs   "_company"
+    csc  "website_legacy"
+    csh  "_company/homebase"
+
+    ex   "examples"
+)
+
+for k in "${(@k)code_dir_aliases}"; do
+    project="$CODE_DIR/$code_dir_aliases[$k]"
+    alias $k="cd $project"
+    alias v$k="cd $project && nvim"
+done
+
+code_cmd_aliases=(
+    # Erlang
+    rb   "rebar3"
+    rba  "rebar3 auto"
+    rbc  "rebar3 compile"
+    rbn  "rebar3 new"
+    rbs  "rebar3 shell"
+    rbp  "rebar3 plugins"
+    rbpu "rebar3 plugins upgrade"
+    rbu  "rb update && rb upgrade && rbpu"
+    rbe  "$EDITOR rebar.config"
+
+    # Go
+    gog "go get"
+    gob "go build"
+    goi "go install"
+
+    # cargo/rust
+    cgb "cargo build"
+    cgc "cargo clean && clear"
+    cgr "cargo run"
+
+    # Ruby
+    be "bundle exec"
+    bi "bundle install"
+    bu "bundle update"
+    rs "rails server"
+
+    # Jekyll
+    js "bundle exec jekyll serve -t"
+    jb "bundle exec jekyll build"
+
+    # Node
+    nig "npm install -g --loglevel error"
+    nis "npm install --save"
+    ni  "npm install --verbose"
+    nid "npm install --save-dev"
+    ntw "npm run test:watch"
+    nt  "npm run test"
+    nr  "npm run"
+
+)
+
+for k in "${(@k)code_cmd_aliases}"; do
+    alias $k="$code_cmd_aliases[$k]"
+done
